@@ -13,21 +13,16 @@ namespace archiver
             sw1.Close();
         }
 
-        public static string ReadFile(OpenFileDialog openFD)
+        public static string ReadFile(string file)
         {
             StreamReader reader;
-            if (openFD.ShowDialog() == DialogResult.OK)
+            if (!File.Exists(file))
             {
-                if (!File.Exists(openFD.FileName))
-                {
-                    throw new FileNotFoundException();
-                }
-                reader = new StreamReader(openFD.FileName);
-            }
-            else
-            {
+                MessageBox.Show("Error:\nФайл не существует");
                 return string.Empty;
             }
+            reader = new StreamReader(file);
+        
             var sourceText = string.Empty;
             var buffer = string.Empty;
             while ((buffer = reader.ReadLine()) != null)

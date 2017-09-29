@@ -15,96 +15,41 @@ namespace archiver
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            FillDriveNodes();
+            foreach (DriveInfo drv in DriveInfo.GetDrives())
+            {
+                if (drv.IsReady)
+                {
+                    TreeNode t2 = new TreeNode();
+                    t2.Text = drv.Name;
+                    t2.Nodes.Add("");
+                    treeFileView.Nodes.Add(t2);
+                }
+            }
         }
         void treeFileView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            e.Node.Nodes.Clear();
-            string[] dirs;
             try
             {
-                if (Directory.Exists(e.Node.FullPath))
+                TreeNode parentnode = e.Node;
+                DirectoryInfo dr = new DirectoryInfo(parentnode.FullPath);
+                parentnode.Nodes.Clear();
+                foreach (DirectoryInfo dir in dr.GetDirectories())
                 {
-                    dirs = Directory.GetDirectories(e.Node.FullPath);
-                    if (dirs.Length != 0)
-                    {
-                        for (int i = 0; i < dirs.Length; i++)
-                        {
-                            TreeNode dirNode = new TreeNode(new DirectoryInfo(dirs[i]).Name);
-                            FillTreeNode(dirNode, dirs[i]);
-                            e.Node.Nodes.Add(dirNode);
-                        }
-                    }
+                    TreeNode node = new TreeNode();
+                    node.Text = dir.Name;
+                    node.Nodes.Add("");
+                    parentnode.Nodes.Add(node);
                 }
             }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.Message, "Error!!");
             }
         }
-        // событие перед выделением узла
-        void treeFileView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
-        {
-            e.Node.Nodes.Clear();
-            string[] dirs;
-            try
-            {
-                if (Directory.Exists(e.Node.FullPath))
-                {
-                    dirs = Directory.GetDirectories(e.Node.FullPath);
-                    if (dirs.Length != 0)
-                    {
-                        for (int i = 0; i < dirs.Length; i++)
-                        {
-                            TreeNode dirNode = new TreeNode(new DirectoryInfo(dirs[i]).Name);
-                            FillTreeNode(dirNode, dirs[i]);
-                            e.Node.Nodes.Add(dirNode);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-
+     
         private void Error()
         {
             MessageBox.Show("Что-то случилось нехорошее");
-        }
-
-        // получаем все диски на компьютере
-        private void FillDriveNodes()
-        {
-            try
-            {
-                foreach (DriveInfo drive in DriveInfo.GetDrives())
-                {
-                    TreeNode driveNode = new TreeNode {Text = drive.Name};
-                    FillTreeNode(driveNode, drive.Name);
-                    treeFileView.Nodes.Add(driveNode);
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-
-        // получаем дочерние узлы для определенного узла
-        private void FillTreeNode(TreeNode driveNode, string path)
-        {
-            try
-            {
-                string[] dirs = Directory.GetDirectories(path);
-                foreach (string dir in dirs)
-                {
-                    TreeNode dirNode = new TreeNode();
-                    dirNode.Text = dir.Remove(0, dir.LastIndexOf("\\") + 1);
-                    driveNode.Nodes.Add(dirNode);
-                }
-            }
-            catch (Exception ex)
-            {
-            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -117,32 +62,38 @@ namespace archiver
 
         private void openFile_Click(object sender, EventArgs e)
         {
-            openFD.ShowDialog();
+            if (openFD.ShowDialog() == DialogResult.OK)
+            {
+                fileTextBox.Text = openFD.FileName;
+            }
         }
 
         private void btnToArc_Click(object sender, EventArgs e)
         {
             // 
-            bool positional = true;
-            bool elementType = true;
+           // bool positional = true;
+          //  bool elementType = true;
 
             var dictionary = new List<string>();
             var encodedText = new List<string>();
 
             var encodedBuilder = new StringBuilder();
             var decodedText = string.Empty;
-            var sourceText = FileManipulator.ReadFile(openFD);
+            var sourceText = FileManipulator.ReadFile(fileTextBox.Text);
             if (string.IsNullOrEmpty(sourceText))
             {
                 return;
             }
-           // var blockLength = (int)oneLength.Value;
-           //int step = radioBlocks.Checked ? blockLength : 1;
-            int blockLength = 1,step = 1;
-            var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
 
-           // var encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
-            var encodedDictionary = positional ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
+            //int blockLength = 1, step = 1;
+            
+             var blockLength = (int)elementLength.Value;
+             int step = radioBlocks.Checked ? blockLength : 1;
+             var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
+
+            // var encodedDictionary = positional ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
+            var encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
+           
             for (int m = 0; m < splittedText.Count; m++)
             {
                 int index = dictionary.IndexOf(splittedText[m]);
@@ -159,9 +110,8 @@ namespace archiver
 
             float compression = (float)sourceLength / encodedLength;
             MessageBox.Show("Длина исходного текста=" + sourceLength.ToString() + "\nДлина закодированного текста=" + encodedLength.ToString() + "\nКоэфициент сжатия=" + compression.ToString());
-
-          //  if (radioBlocks.Checked)
-            if (elementType)
+            // if (elementType)
+            if (radioBlocks.Checked)
             {
                 for (int k = 0; k < encodedText.Count; k++)
                 {
@@ -182,6 +132,92 @@ namespace archiver
                 }
 
                 FileManipulator.WriteFile(decodedText, "decodedLGramm.txt");
+            }
+        }
+
+        private void treeFileView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                TreeNode current = e.Node;
+                string path = current.FullPath;
+                string[] Files = Directory.GetFiles(path);
+                //string[] Directories = Directory.GetDirectories(path);
+                string[] subinfo = new string[4];
+                listView.Clear();
+                listView.Columns.Add("Name", 255);
+                listView.Columns.Add("Size", 100);
+                listView.Columns.Add("Type", 80);
+                listView.Columns.Add("Full path");
+                listView.Columns[3].Width = 60;
+                foreach (string Fname in Files)
+                {
+                    subinfo[0] = GetName(Fname);
+                    subinfo[1] = GetSizeinfo(Fname);
+                    subinfo[2] = GetTypeinfo(Fname);
+                    subinfo[3] = Fname;
+                    ListViewItem FItems = new ListViewItem(subinfo);
+                    listView.Items.Add(FItems);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error: ");
+            }
+        }
+        public string GetName(string path)
+        {
+            int Nameindex = path.LastIndexOf('\\');
+            return path.Substring(Nameindex + 1);
+        }
+        public string GetTypeinfo(string path)
+        {
+            int Typeindex = path.LastIndexOf('.');
+            string FType;
+            if (Typeindex != -1)
+            {
+                FType = path.Substring(Typeindex + 1);
+                FType = FType.ToUpper();
+                return FType;
+            }
+            else
+            {
+                FType = "FILE";
+                return FType;
+            }
+        }
+        public string GetSizeinfo(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+            long size = fi.Length;
+            string txtsize = "";
+            if (size < 1024)
+            {
+                txtsize = "byte";
+            }
+            else if (size > 1024)
+            {
+                size = size / 1024;
+                txtsize = "Kb";
+            }
+            if (size > 1024)
+            {
+                size = size / 1024;
+                txtsize = "Mb";
+            }
+            if (size > 1024)
+            {
+                size = size / 1024;
+                txtsize = "Gb";
+            }
+            return size + " " + txtsize;
+        }
+
+        private void listView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (listView.SelectedItems.Count > 0)
+            {
+                fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text.Remove(3,1); // 0 - the only element in selected file collection, 3 - number of column with full path
             }
         }
     }

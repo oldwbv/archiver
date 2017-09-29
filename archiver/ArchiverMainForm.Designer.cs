@@ -48,10 +48,23 @@
             this.labelFile = new System.Windows.Forms.Label();
             this.openFD = new System.Windows.Forms.OpenFileDialog();
             this.treeFileView = new System.Windows.Forms.TreeView();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listView = new System.Windows.Forms.ListView();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.groupWay = new System.Windows.Forms.GroupBox();
+            this.radioPositional = new System.Windows.Forms.RadioButton();
+            this.radioOptimal = new System.Windows.Forms.RadioButton();
+            this.groupDividing = new System.Windows.Forms.GroupBox();
+            this.radioLGrums = new System.Windows.Forms.RadioButton();
+            this.radioBlocks = new System.Windows.Forms.RadioButton();
+            this.groupSize = new System.Windows.Forms.GroupBox();
+            this.elementLength = new System.Windows.Forms.NumericUpDown();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.groupWay.SuspendLayout();
+            this.groupDividing.SuspendLayout();
+            this.groupSize.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.elementLength)).BeginInit();
             this.SuspendLayout();
             // 
             // mainMenu
@@ -61,7 +74,7 @@
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(560, 24);
+            this.mainMenu.Size = new System.Drawing.Size(586, 24);
             this.mainMenu.TabIndex = 0;
             this.mainMenu.Text = "menu";
             // 
@@ -148,9 +161,9 @@
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.labelFile);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 207);
+            this.panel1.Location = new System.Drawing.Point(0, 264);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(560, 23);
+            this.panel1.Size = new System.Drawing.Size(586, 23);
             this.panel1.TabIndex = 1;
             // 
             // fileTextBox
@@ -161,7 +174,7 @@
             this.fileTextBox.Multiline = true;
             this.fileTextBox.Name = "fileTextBox";
             this.fileTextBox.ReadOnly = true;
-            this.fileTextBox.Size = new System.Drawing.Size(292, 23);
+            this.fileTextBox.Size = new System.Drawing.Size(318, 23);
             this.fileTextBox.TabIndex = 1;
             this.fileTextBox.TabStop = false;
             // 
@@ -171,7 +184,7 @@
             this.panel2.Controls.Add(this.btnDeArc);
             this.panel2.Controls.Add(this.btnToArc);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(331, 0);
+            this.panel2.Location = new System.Drawing.Point(357, 0);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(229, 23);
             this.panel2.TabIndex = 0;
@@ -207,37 +220,143 @@
             // 
             // openFD
             // 
-            this.openFD.Filter = "ivt архивы|*.ivt|Все файлы|*.*";
+            this.openFD.Filter = "Все файлы|*.*|ivt архивы|*.ivt";
             this.openFD.RestoreDirectory = true;
             this.openFD.SupportMultiDottedExtensions = true;
             // 
             // treeFileView
             // 
             this.treeFileView.Dock = System.Windows.Forms.DockStyle.Left;
-            this.treeFileView.Location = new System.Drawing.Point(0, 24);
+            this.treeFileView.Location = new System.Drawing.Point(0, 63);
             this.treeFileView.Name = "treeFileView";
-            this.treeFileView.Size = new System.Drawing.Size(267, 183);
+            this.treeFileView.Size = new System.Drawing.Size(267, 201);
             this.treeFileView.TabIndex = 2;
             this.treeFileView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeFileView_BeforeExpand);
-            this.treeFileView.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeFileView_BeforeSelect);
+            this.treeFileView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeFileView_AfterSelect);
             // 
-            // listBox1
+            // listView
             // 
-            this.listBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(264, 24);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(296, 183);
-            this.listBox1.TabIndex = 3;
+            this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView.Location = new System.Drawing.Point(267, 63);
+            this.listView.MultiSelect = false;
+            this.listView.Name = "listView";
+            this.listView.Size = new System.Drawing.Size(319, 201);
+            this.listView.TabIndex = 4;
+            this.listView.UseCompatibleStateImageBehavior = false;
+            this.listView.View = System.Windows.Forms.View.Details;
+            this.listView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listView_MouseClick);
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.AutoSize = false;
+            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(586, 39);
+            this.toolStrip1.TabIndex = 5;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // groupWay
+            // 
+            this.groupWay.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupWay.Controls.Add(this.radioOptimal);
+            this.groupWay.Controls.Add(this.radioPositional);
+            this.groupWay.Location = new System.Drawing.Point(7, 24);
+            this.groupWay.Name = "groupWay";
+            this.groupWay.Size = new System.Drawing.Size(208, 36);
+            this.groupWay.TabIndex = 6;
+            this.groupWay.TabStop = false;
+            this.groupWay.Text = "Способ кодирования";
+            // 
+            // radioPositional
+            // 
+            this.radioPositional.AutoSize = true;
+            this.radioPositional.Checked = true;
+            this.radioPositional.Location = new System.Drawing.Point(6, 16);
+            this.radioPositional.Name = "radioPositional";
+            this.radioPositional.Size = new System.Drawing.Size(95, 17);
+            this.radioPositional.TabIndex = 0;
+            this.radioPositional.TabStop = true;
+            this.radioPositional.Text = "Позиционный";
+            this.radioPositional.UseVisualStyleBackColor = true;
+            // 
+            // radioOptimal
+            // 
+            this.radioOptimal.AutoSize = true;
+            this.radioOptimal.Location = new System.Drawing.Point(105, 16);
+            this.radioOptimal.Name = "radioOptimal";
+            this.radioOptimal.Size = new System.Drawing.Size(96, 17);
+            this.radioOptimal.TabIndex = 1;
+            this.radioOptimal.Text = "Оптимальный";
+            this.radioOptimal.UseVisualStyleBackColor = true;
+            // 
+            // groupDividing
+            // 
+            this.groupDividing.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupDividing.Controls.Add(this.radioLGrums);
+            this.groupDividing.Controls.Add(this.radioBlocks);
+            this.groupDividing.Location = new System.Drawing.Point(221, 24);
+            this.groupDividing.Name = "groupDividing";
+            this.groupDividing.Size = new System.Drawing.Size(145, 36);
+            this.groupDividing.TabIndex = 7;
+            this.groupDividing.TabStop = false;
+            this.groupDividing.Text = "Способ разбиения";
+            // 
+            // radioLGrums
+            // 
+            this.radioLGrums.AutoSize = true;
+            this.radioLGrums.Location = new System.Drawing.Point(68, 16);
+            this.radioLGrums.Name = "radioLGrums";
+            this.radioLGrums.Size = new System.Drawing.Size(75, 17);
+            this.radioLGrums.TabIndex = 1;
+            this.radioLGrums.Text = "L-граммы";
+            this.radioLGrums.UseVisualStyleBackColor = true;
+            // 
+            // radioBlocks
+            // 
+            this.radioBlocks.AutoSize = true;
+            this.radioBlocks.Checked = true;
+            this.radioBlocks.Location = new System.Drawing.Point(6, 16);
+            this.radioBlocks.Name = "radioBlocks";
+            this.radioBlocks.Size = new System.Drawing.Size(56, 17);
+            this.radioBlocks.TabIndex = 0;
+            this.radioBlocks.TabStop = true;
+            this.radioBlocks.Text = "Блоки";
+            this.radioBlocks.UseVisualStyleBackColor = true;
+            // 
+            // groupSize
+            // 
+            this.groupSize.Controls.Add(this.elementLength);
+            this.groupSize.Location = new System.Drawing.Point(373, 24);
+            this.groupSize.Name = "groupSize";
+            this.groupSize.Size = new System.Drawing.Size(118, 36);
+            this.groupSize.TabIndex = 8;
+            this.groupSize.TabStop = false;
+            this.groupSize.Text = "Размер элемента";
+            // 
+            // elementLength
+            // 
+            this.elementLength.Location = new System.Drawing.Point(6, 13);
+            this.elementLength.Name = "elementLength";
+            this.elementLength.Size = new System.Drawing.Size(106, 20);
+            this.elementLength.TabIndex = 0;
+            this.elementLength.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
             // ArchiverMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(560, 230);
-            this.Controls.Add(this.listBox1);
+            this.ClientSize = new System.Drawing.Size(586, 287);
+            this.Controls.Add(this.groupSize);
+            this.Controls.Add(this.groupWay);
+            this.Controls.Add(this.groupDividing);
+            this.Controls.Add(this.listView);
             this.Controls.Add(this.treeFileView);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.mainMenu);
             this.MainMenuStrip = this.mainMenu;
             this.Name = "ArchiverMainForm";
@@ -249,6 +368,12 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
+            this.groupWay.ResumeLayout(false);
+            this.groupWay.PerformLayout();
+            this.groupDividing.ResumeLayout(false);
+            this.groupDividing.PerformLayout();
+            this.groupSize.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.elementLength)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -276,7 +401,16 @@
         private System.Windows.Forms.Button btnDeArc;
         private System.Windows.Forms.OpenFileDialog openFD;
         private System.Windows.Forms.TreeView treeFileView;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListView listView;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.GroupBox groupWay;
+        private System.Windows.Forms.RadioButton radioOptimal;
+        private System.Windows.Forms.RadioButton radioPositional;
+        private System.Windows.Forms.GroupBox groupDividing;
+        private System.Windows.Forms.RadioButton radioLGrums;
+        private System.Windows.Forms.RadioButton radioBlocks;
+        private System.Windows.Forms.GroupBox groupSize;
+        private System.Windows.Forms.NumericUpDown elementLength;
     }
 }
 
