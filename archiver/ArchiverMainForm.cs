@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using archiver.Tree;
 
 namespace archiver
 {
@@ -70,9 +71,26 @@ namespace archiver
 
         private void btnToArc_Click(object sender, EventArgs e)
         {
+            Archivate((int)numElementLen.Value);
+        }
+
+        private void btnSerial_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < numIterations.Value; i++)
+            {
+                var length = numElementLen.Value + numStep.Value * i;
+                if (Archivate((int) length) == false)
+                {
+                    return;
+                }
+            }
+        }
+
+        private bool Archivate(int blockLength)
+        {
             // 
-           // bool positional = true;
-          //  bool elementType = true;
+            // bool positional = true;
+            //  bool elementType = true;
 
             var dictionary = new List<string>();
             var encodedText = new List<string>();
@@ -82,18 +100,18 @@ namespace archiver
             var sourceText = FileManipulator.ReadFile(fileTextBox.Text);
             if (string.IsNullOrEmpty(sourceText))
             {
-                return;
+                return false;
             }
 
             //int blockLength = 1, step = 1;
-            
-             var blockLength = (int)elementLength.Value;
-             int step = radioBlocks.Checked ? blockLength : 1;
-             var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
+
+           // var blockLength = (int)numElementLen.Value;
+            int step = radioBlocks.Checked ? blockLength : 1;
+            var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
 
             // var encodedDictionary = positional ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
             var encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
-           
+
             for (int m = 0; m < splittedText.Count; m++)
             {
                 int index = dictionary.IndexOf(splittedText[m]);
@@ -102,7 +120,7 @@ namespace archiver
                 encodedBuilder.Append(stringCode);
             }
 
-            FileManipulator.WriteFile(encodedBuilder.ToString(), "encoded.txt");
+            FileManipulator.WriteFile(encodedBuilder.ToString(), "encoded");
 
             int encodedLength = encodedBuilder.ToString().Length;
 
@@ -118,7 +136,7 @@ namespace archiver
                     int index = encodedDictionary.IndexOf(encodedText[k]);
                     decodedText += dictionary[index];
                 }
-                FileManipulator.WriteFile(decodedText, "decodedBlock.txt");
+                FileManipulator.WriteFile(decodedText, "decodedBlock");
             }
             else //L-grums
             {
@@ -131,8 +149,9 @@ namespace archiver
                     decodedText += t;
                 }
 
-                FileManipulator.WriteFile(decodedText, "decodedLGramm.txt");
+                FileManipulator.WriteFile(decodedText, "decodedLGrum");
             }
+            return true;
         }
 
         private void treeFileView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -146,15 +165,15 @@ namespace archiver
                 string[] subinfo = new string[4];
                 listView.Clear();
                 listView.Columns.Add("Name", 255);
-                listView.Columns.Add("Size", 100);
                 listView.Columns.Add("Type", 80);
+                listView.Columns.Add("Size", 100);
                 listView.Columns.Add("Full path");
                 listView.Columns[3].Width = 60;
                 foreach (string Fname in Files)
                 {
-                    subinfo[0] = GetName(Fname);
-                    subinfo[1] = GetSizeinfo(Fname);
-                    subinfo[2] = GetTypeinfo(Fname);
+                    subinfo[0] = Path.GetFileName(Fname);
+                    subinfo[1] = Path.GetExtension(Fname).Substring(1);
+                    subinfo[2] = treeParams.GetSizeinfo(Fname);
                     subinfo[3] = Fname;
                     ListViewItem FItems = new ListViewItem(subinfo);
                     listView.Items.Add(FItems);
@@ -165,60 +184,26 @@ namespace archiver
                 MessageBox.Show(ex.Message, "Error: ");
             }
         }
-        public string GetName(string path)
-        {
-            int Nameindex = path.LastIndexOf('\\');
-            return path.Substring(Nameindex + 1);
-        }
-        public string GetTypeinfo(string path)
-        {
-            int Typeindex = path.LastIndexOf('.');
-            string FType;
-            if (Typeindex != -1)
-            {
-                FType = path.Substring(Typeindex + 1);
-                FType = FType.ToUpper();
-                return FType;
-            }
-            else
-            {
-                FType = "FILE";
-                return FType;
-            }
-        }
-        public string GetSizeinfo(string path)
-        {
-            FileInfo fi = new FileInfo(path);
-            long size = fi.Length;
-            string txtsize = "";
-            if (size < 1024)
-            {
-                txtsize = "byte";
-            }
-            else if (size > 1024)
-            {
-                size = size / 1024;
-                txtsize = "Kb";
-            }
-            if (size > 1024)
-            {
-                size = size / 1024;
-                txtsize = "Mb";
-            }
-            if (size > 1024)
-            {
-                size = size / 1024;
-                txtsize = "Gb";
-            }
-            return size + " " + txtsize;
-        }
+
 
         private void listView_MouseClick(object sender, MouseEventArgs e)
         {
+            // if selected items more than 0 move it to textbox
             if (listView.SelectedItems.Count > 0)
             {
-                fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text.Remove(3,1); // 0 - the only element in selected file collection, 3 - number of column with full path
+                fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text;
+                //    fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text.Remove(2,1); // 0 - the only element in selected file collection, 3 - number of column with full path
             }
+        }
+
+        private void savePathStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileManipulator.path = saveFD.ShowDialog() == DialogResult.OK ? saveFD.FileName : string.Empty;
+        }
+
+        private void showToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(saveFD.FileName);
         }
     }
 }

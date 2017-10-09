@@ -10,6 +10,7 @@ namespace archiver
         {
             var result = new List<string>();
             var iterator = new StringIterator(sourceText, step, blockLength);
+
             while (iterator.HasNext())
             {
                 string current = iterator.Next();
