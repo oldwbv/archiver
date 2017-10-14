@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using archiver.Proccesing;
 
 namespace archiver
 {
@@ -69,7 +70,7 @@ namespace archiver
 
         double b = 0;
         double c = 0;
-        public List<string> Encode(List<string> dictionary)
+        public List<string> Encode(List<string> dictionary, Session session)
         {
             var result = new List<string>();
             for (int i = 0; i < dictionary.Count; i++)
@@ -81,9 +82,8 @@ namespace archiver
                 b += result[i].ToString().Length * d[dictionary[i]];
                 c += d[dictionary[i]];
             }
-            MessageBox.Show("Средняя длина кодового слова: " + b.ToString());
-           
-
+            //MessageBox.Show("Средняя длина кодового слова: " + b.ToString());
+            session.AverageWordLength = b;
             return result;
         }
 

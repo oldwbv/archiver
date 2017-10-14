@@ -42,7 +42,7 @@ namespace archiver
             var reader = new StreamReader(file);
         
             var sourceText = string.Empty;
-            string buffer = string.Empty;
+            var buffer = string.Empty;
             while ((buffer = reader.ReadLine()) != null)
             {
                 sourceText += buffer;

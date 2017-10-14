@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace archiver
 {
     public static  class SimpleCode
     {
-        public static List<string> BuildCode(List<string> dictionary)
+        public static List<string> BuildCode(List<string> dictionary, Proccesing.Session session)
         {
             List<string> encodedDictionary = new List<string>();
             int codeLength = (int) Math.Ceiling(Math.Log(dictionary.Count, 2));
@@ -21,7 +20,8 @@ namespace archiver
                     encodedDictionary.Add(stringCode);
                 }
             }
-            MessageBox.Show("Средняя длина кодового слова: " + codeLength.ToString());
+            //MessageBox.Show("Средняя длина кодового слова: " + codeLength.ToString());
+            session.AverageWordLength = codeLength;
             return encodedDictionary;
         }
     }

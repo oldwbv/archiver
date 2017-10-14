@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using archiver.Proccesing;
 using archiver.Tree;
 
 namespace archiver
@@ -91,7 +93,7 @@ namespace archiver
             // 
             // bool positional = true;
             //  bool elementType = true;
-
+            Session session = new Session();
             var dictionary = new List<string>();
             var encodedText = new List<string>();
 
@@ -110,8 +112,7 @@ namespace archiver
             var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
 
             // var encodedDictionary = positional ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
-            var encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
-
+            List<string> encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary, session) : HaffmanCode.BuildCode(splittedText, dictionary, session);
             for (int m = 0; m < splittedText.Count; m++)
             {
                 int index = dictionary.IndexOf(splittedText[m]);
@@ -127,7 +128,10 @@ namespace archiver
             int sourceLength = sourceText.Length;
 
             float compression = (float)sourceLength / encodedLength;
-            MessageBox.Show("Длина исходного текста=" + sourceLength.ToString() + "\nДлина закодированного текста=" + encodedLength.ToString() + "\nКоэфициент сжатия=" + compression.ToString());
+            //MessageBox.Show("Длина исходного текста=" + sourceLength.ToString() + "\nДлина закодированного текста=" + encodedLength.ToString() + "\nКоэфициент сжатия=" + compression.ToString());
+            session.SourceLength = sourceLength;
+            session.EncodedLength = encodedLength;
+            
             // if (elementType)
             if (radioBlocks.Checked)
             {
@@ -151,6 +155,8 @@ namespace archiver
 
                 FileManipulator.WriteFile(decodedText, "decodedLGrum");
             }
+            MessageBox.Show(session.SourceLength.ToString() + "\n"
+                            + session.EncodedLength + "\n" + session.GetCompression() + "\n" + session.AverageWordLength);
             return true;
         }
 

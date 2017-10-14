@@ -53,7 +53,7 @@
     <Compile Include="ArchiverMainForm.Designer.cs">
       <DependentUpon>ArchiverMainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SessionWriter.cs" />
+    <Compile Include="Session.cs" />
     <Compile Include="Proccesing\FileManipulator.cs" />
     <Compile Include="Huffman\HaffmanCode.cs" />
     <Compile Include="Huffman\HuffmanTree.cs" />
@@ -64,7 +64,7 @@
     <Compile Include="Proccesing\SimpleCode.cs" />
     <Compile Include="Proccesing\StringIterator.cs" />
     <Compile Include="Proccesing\StringManipulator.cs" />
-    <Compile Include="Tree\tree.cs" />
+    <Compile Include="TreeView\treeParams.cs" />
     <EmbeddedResource Include="ArchiverMainForm.resx">
       <DependentUpon>ArchiverMainForm.cs</DependentUpon>
     </EmbeddedResource>
