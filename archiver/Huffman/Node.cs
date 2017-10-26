@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace archiver
+namespace archiver.Huffman
 {
     class Node
     {
@@ -28,7 +28,6 @@ namespace archiver
                 var leftPath = new List<bool>();
                 leftPath.AddRange(data);
                 leftPath.Add(false);
-
                 left = Left.Traverse(value, leftPath);
             }
 
@@ -44,6 +43,7 @@ namespace archiver
             {
                 return left;
             }
+
             return right;
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace archiver
+namespace archiver.Proccesing
 {
     public class StringIterator
     {
@@ -23,7 +23,6 @@ namespace archiver
             if (str.Length > position + readSize)
             {
                 result = str.Substring(position, readSize);
-                
             }
             else
             {

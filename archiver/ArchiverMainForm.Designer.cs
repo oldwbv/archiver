@@ -30,22 +30,23 @@
         {
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.savePathStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.archivationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dearchivationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.archivationMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dearchivationMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pathConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateTreeViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAnyPathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.fileTextBox = new System.Windows.Forms.TextBox();
+            this.saveTextBox = new System.Windows.Forms.TextBox();
+            this.openTextBox = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnDeArchivate = new System.Windows.Forms.Button();
             this.btnSerial = new System.Windows.Forms.Button();
@@ -59,7 +60,7 @@
             this.radioOptimal = new System.Windows.Forms.RadioButton();
             this.radioPositional = new System.Windows.Forms.RadioButton();
             this.groupDividing = new System.Windows.Forms.GroupBox();
-            this.radioLGrums = new System.Windows.Forms.RadioButton();
+            this.radioLGrams = new System.Windows.Forms.RadioButton();
             this.radioBlocks = new System.Windows.Forms.RadioButton();
             this.groupSize = new System.Windows.Forms.GroupBox();
             this.numElementLen = new System.Windows.Forms.NumericUpDown();
@@ -68,6 +69,8 @@
             this.labelStep = new System.Windows.Forms.Label();
             this.labeIterations = new System.Windows.Forms.Label();
             this.saveFD = new System.Windows.Forms.SaveFileDialog();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.MessageStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -77,12 +80,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.numElementLen)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numStep)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIterations)).BeginInit();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainMenu
             // 
             this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.pathConfigToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
@@ -93,75 +98,83 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.savePathStripMenuItem,
-            this.saveToolStripMenuItem,
+            this.openMenuItem,
+            this.saveMenuItem,
             this.toolStripSeparator1,
-            this.archivationToolStripMenuItem,
-            this.dearchivationToolStripMenuItem,
+            this.archivationMenuItem,
+            this.dearchivationMenuItem,
             this.toolStripSeparator2,
-            this.exitToolStripMenuItem});
+            this.exitMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(45, 20);
             this.fileToolStripMenuItem.Text = "Файл";
             // 
-            // openToolStripMenuItem
+            // openMenuItem
             // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.openToolStripMenuItem.Text = "Открыть";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openFile_Click);
+            this.openMenuItem.Name = "openMenuItem";
+            this.openMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.openMenuItem.Text = "Открыть";
+            this.openMenuItem.Click += new System.EventHandler(this.openFileMenuItem_Click);
             // 
-            // savePathStripMenuItem
+            // saveMenuItem
             // 
-            this.savePathStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showToolStripMenuItem});
-            this.savePathStripMenuItem.Name = "savePathStripMenuItem";
-            this.savePathStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.savePathStripMenuItem.Text = "Сохранять как";
-            this.savePathStripMenuItem.Click += new System.EventHandler(this.savePathStripMenuItem_Click);
-            // 
-            // showToolStripMenuItem
-            // 
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.showToolStripMenuItem.Text = "Show";
-            this.showToolStripMenuItem.Click += new System.EventHandler(this.showToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.saveToolStripMenuItem.Text = "Просмотр";
+            this.saveMenuItem.Name = "saveMenuItem";
+            this.saveMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.saveMenuItem.Text = "Просмотр";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(145, 6);
             // 
-            // archivationToolStripMenuItem
+            // archivationMenuItem
             // 
-            this.archivationToolStripMenuItem.Name = "archivationToolStripMenuItem";
-            this.archivationToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.archivationToolStripMenuItem.Text = "Архивация";
+            this.archivationMenuItem.Name = "archivationMenuItem";
+            this.archivationMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.archivationMenuItem.Text = "Архивация";
             // 
-            // dearchivationToolStripMenuItem
+            // dearchivationMenuItem
             // 
-            this.dearchivationToolStripMenuItem.Name = "dearchivationToolStripMenuItem";
-            this.dearchivationToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.dearchivationToolStripMenuItem.Text = "Разархивация";
+            this.dearchivationMenuItem.Name = "dearchivationMenuItem";
+            this.dearchivationMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.dearchivationMenuItem.Text = "Разархивация";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(145, 6);
             // 
-            // exitToolStripMenuItem
+            // exitMenuItem
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.exitToolStripMenuItem.Text = "Выйти";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitMenuItem.Name = "exitMenuItem";
+            this.exitMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.exitMenuItem.Text = "Выйти";
+            this.exitMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // pathConfigToolStripMenuItem
+            // 
+            this.pathConfigToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.updateTreeViewToolStripMenuItem,
+            this.saveAnyPathMenuItem});
+            this.pathConfigToolStripMenuItem.Name = "pathConfigToolStripMenuItem";
+            this.pathConfigToolStripMenuItem.Size = new System.Drawing.Size(77, 20);
+            this.pathConfigToolStripMenuItem.Text = "Настройки";
+            // 
+            // updateTreeViewToolStripMenuItem
+            // 
+            this.updateTreeViewToolStripMenuItem.Name = "updateTreeViewToolStripMenuItem";
+            this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.updateTreeViewToolStripMenuItem.Text = "Обновить дерево";
+            this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.updateDriveTreeView);
+            // 
+            // saveAnyPathMenuItem
+            // 
+            this.saveAnyPathMenuItem.Checked = true;
+            this.saveAnyPathMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.saveAnyPathMenuItem.Name = "saveAnyPathMenuItem";
+            this.saveAnyPathMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.saveAnyPathMenuItem.Text = "Сохранять пути";
+            this.saveAnyPathMenuItem.Click += new System.EventHandler(this.saveAnyPathToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -187,12 +200,12 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Controls.Add(this.fileTextBox);
+            this.panel1.Controls.Add(this.saveTextBox);
+            this.panel1.Controls.Add(this.openTextBox);
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.labelFile);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 334);
+            this.panel1.Location = new System.Drawing.Point(0, 312);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(766, 48);
             this.panel1.TabIndex = 1;
@@ -207,25 +220,25 @@
             this.label1.Text = "SavePath:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // textBox1
+            // saveTextBox
             // 
-            this.textBox1.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.textBox1.Location = new System.Drawing.Point(64, 25);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(382, 20);
-            this.textBox1.TabIndex = 2;
-            this.textBox1.TabStop = false;
+            this.saveTextBox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.saveTextBox.Location = new System.Drawing.Point(64, 25);
+            this.saveTextBox.Name = "saveTextBox";
+            this.saveTextBox.ReadOnly = true;
+            this.saveTextBox.Size = new System.Drawing.Size(382, 20);
+            this.saveTextBox.TabIndex = 2;
+            this.saveTextBox.TabStop = false;
             // 
-            // fileTextBox
+            // openTextBox
             // 
-            this.fileTextBox.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.fileTextBox.Location = new System.Drawing.Point(64, 2);
-            this.fileTextBox.Name = "fileTextBox";
-            this.fileTextBox.ReadOnly = true;
-            this.fileTextBox.Size = new System.Drawing.Size(382, 20);
-            this.fileTextBox.TabIndex = 1;
-            this.fileTextBox.TabStop = false;
+            this.openTextBox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.openTextBox.Location = new System.Drawing.Point(64, 2);
+            this.openTextBox.Name = "openTextBox";
+            this.openTextBox.ReadOnly = true;
+            this.openTextBox.Size = new System.Drawing.Size(382, 20);
+            this.openTextBox.TabIndex = 1;
+            this.openTextBox.TabStop = false;
             // 
             // panel2
             // 
@@ -252,9 +265,9 @@
             // 
             this.btnSerial.Location = new System.Drawing.Point(116, 0);
             this.btnSerial.Name = "btnSerial";
-            this.btnSerial.Size = new System.Drawing.Size(110, 22);
+            this.btnSerial.Size = new System.Drawing.Size(110, 45);
             this.btnSerial.TabIndex = 2;
-            this.btnSerial.Text = "Серия";
+            this.btnSerial.Text = "Серия\r\nдля исследований\r\n";
             this.btnSerial.UseVisualStyleBackColor = true;
             this.btnSerial.Click += new System.EventHandler(this.btnSerial_Click);
             // 
@@ -288,7 +301,7 @@
             this.treeFileView.Dock = System.Windows.Forms.DockStyle.Left;
             this.treeFileView.Location = new System.Drawing.Point(0, 63);
             this.treeFileView.Name = "treeFileView";
-            this.treeFileView.Size = new System.Drawing.Size(267, 271);
+            this.treeFileView.Size = new System.Drawing.Size(267, 249);
             this.treeFileView.TabIndex = 2;
             this.treeFileView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeFileView_BeforeExpand);
             this.treeFileView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeFileView_AfterSelect);
@@ -299,7 +312,7 @@
             this.listView.Location = new System.Drawing.Point(267, 63);
             this.listView.MultiSelect = false;
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(499, 271);
+            this.listView.Size = new System.Drawing.Size(499, 249);
             this.listView.TabIndex = 4;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
@@ -351,7 +364,7 @@
             // groupDividing
             // 
             this.groupDividing.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupDividing.Controls.Add(this.radioLGrums);
+            this.groupDividing.Controls.Add(this.radioLGrams);
             this.groupDividing.Controls.Add(this.radioBlocks);
             this.groupDividing.Location = new System.Drawing.Point(221, 24);
             this.groupDividing.Name = "groupDividing";
@@ -360,15 +373,15 @@
             this.groupDividing.TabStop = false;
             this.groupDividing.Text = "Способ разбиения";
             // 
-            // radioLGrums
+            // radioLGrams
             // 
-            this.radioLGrums.AutoSize = true;
-            this.radioLGrums.Location = new System.Drawing.Point(68, 16);
-            this.radioLGrums.Name = "radioLGrums";
-            this.radioLGrums.Size = new System.Drawing.Size(75, 17);
-            this.radioLGrums.TabIndex = 1;
-            this.radioLGrums.Text = "L-граммы";
-            this.radioLGrums.UseVisualStyleBackColor = true;
+            this.radioLGrams.AutoSize = true;
+            this.radioLGrams.Location = new System.Drawing.Point(68, 16);
+            this.radioLGrams.Name = "radioLGrams";
+            this.radioLGrams.Size = new System.Drawing.Size(75, 17);
+            this.radioLGrams.TabIndex = 1;
+            this.radioLGrams.Text = "L-граммы";
+            this.radioLGrams.UseVisualStyleBackColor = true;
             // 
             // radioBlocks
             // 
@@ -461,6 +474,22 @@
             this.saveFD.DefaultExt = "ivt|*.ivt";
             this.saveFD.Filter = "ivt архивы|*.ivt|Все файлы|*.*";
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MessageStripStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(0, 360);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(766, 22);
+            this.statusStrip.TabIndex = 13;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // MessageStripStatusLabel
+            // 
+            this.MessageStripStatusLabel.Name = "MessageStripStatusLabel";
+            this.MessageStripStatusLabel.Size = new System.Drawing.Size(39, 17);
+            this.MessageStripStatusLabel.Text = "Status";
+            // 
             // ArchiverMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -478,6 +507,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.toolMenu);
             this.Controls.Add(this.mainMenu);
+            this.Controls.Add(this.statusStrip);
             this.MainMenuStrip = this.mainMenu;
             this.Name = "ArchiverMainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -496,6 +526,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numElementLen)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numStep)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIterations)).EndInit();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -505,19 +537,19 @@
 
         private System.Windows.Forms.MenuStrip mainMenu;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem archivationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem dearchivationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem archivationMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dearchivationMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manualToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.TextBox fileTextBox;
+        private System.Windows.Forms.TextBox openTextBox;
         private System.Windows.Forms.Label labelFile;
         private System.Windows.Forms.Button btnArchivate;
         private System.Windows.Forms.Button btnSerial;
@@ -529,7 +561,7 @@
         private System.Windows.Forms.RadioButton radioOptimal;
         private System.Windows.Forms.RadioButton radioPositional;
         private System.Windows.Forms.GroupBox groupDividing;
-        private System.Windows.Forms.RadioButton radioLGrums;
+        private System.Windows.Forms.RadioButton radioLGrams;
         private System.Windows.Forms.RadioButton radioBlocks;
         private System.Windows.Forms.GroupBox groupSize;
         private System.Windows.Forms.NumericUpDown numElementLen;
@@ -537,12 +569,15 @@
         private System.Windows.Forms.NumericUpDown numIterations;
         private System.Windows.Forms.Label labelStep;
         private System.Windows.Forms.Label labeIterations;
-        private System.Windows.Forms.ToolStripMenuItem savePathStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFD;
-        private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox saveTextBox;
         private System.Windows.Forms.Button btnDeArchivate;
+        private System.Windows.Forms.ToolStripMenuItem pathConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAnyPathMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel MessageStripStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem updateTreeViewToolStripMenuItem;
     }
 }
 

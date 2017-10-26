@@ -1,34 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using archiver.Huffman;
 using archiver.Proccesing;
-using archiver.Tree;
+using archiver.Properties;
+using archiver.TreeView;
 
 namespace archiver
 {
     public partial class ArchiverMainForm : Form
     {
+        /// Constructor
         public ArchiverMainForm()
         {
             InitializeComponent();
         }
 
+        // On Form Load
         private void Form1_Load(object sender, EventArgs e)
         {
-            foreach (DriveInfo drv in DriveInfo.GetDrives())
+            updateDriveTreeView(this, null);
+            saveAnyPathMenuItem.Checked = Settings.Default.saveAnyPath;
+            openFD.InitialDirectory = openTextBox.Text = Path.GetDirectoryName(Settings.Default.openPath);
+           /*string[] path = openTextBox.Text.Split('\\');
+            MessageBox.Show(path.Length.ToString());
+            for (var i = 1; i < path.Length; i++)
             {
-                if (drv.IsReady)
-                {
-                    TreeNode t2 = new TreeNode();
-                    t2.Text = drv.Name;
-                    t2.Nodes.Add("");
-                    treeFileView.Nodes.Add(t2);
-                }
-            }
+                TreeNode[] nodes = treeFileView.Nodes.Find(path[i], false);
+                MessageBox.Show(nodes.Length.ToString());
+                nodes[0].Expand();
+            }*/
+            treeFileView.TopNode.Expand();
+            saveFD.InitialDirectory = saveTextBox.Text = Path.GetDirectoryName(Settings.Default.savePath);
+           
+
+            // 
         }
+
+        // event - before expanding the tree view
         void treeFileView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             try
@@ -46,15 +58,53 @@ namespace archiver
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error!!");
+                MessageStripStatusLabel.Text = ex.Message;
             }
         }
-     
+
+
+        private void treeFileView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                TreeNode current = e.Node;
+                string path = current.FullPath;
+                IEnumerable<string> files = Directory.EnumerateFiles(path);
+                //string[] Directories = Directory.GetDirectories(path);
+                string[] subinfo = new string[4];
+                listView.Clear();
+                listView.Columns.Add("Name", 255);
+                listView.Columns.Add("Type", 80);
+                listView.Columns.Add("Size", 100);
+                listView.Columns.Add("Full path");
+                listView.Columns[3].Width = 60;
+                foreach (string fName in files)
+                {
+                    var file = fName.Contains(@"\\") ? fName.Replace(@"\\", @"\") : fName;
+                    subinfo[0] = Path.GetFileName(file);
+                    subinfo[1] = Path.GetExtension(file).StartsWith(".")
+                        ? Path.GetExtension(file).Substring(1).ToUpper()
+                        : "";
+                    subinfo[2] = treeParams.GetSizeinfo(file);
+                    subinfo[3] = file;
+                    ListViewItem fItems = new ListViewItem(subinfo);
+                    listView.Items.Add(fItems);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        /*
         private void Error()
         {
             MessageBox.Show("Что-то случилось нехорошее");
-        }
+        }*/
 
+
+        // event - on the exit menu item click;
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Вы уверены, что хотите выйти из программы?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
@@ -63,19 +113,22 @@ namespace archiver
             }
         }
 
-        private void openFile_Click(object sender, EventArgs e)
+        // event - System File Dialog Open
+        private void openFileMenuItem_Click(object sender, EventArgs e)
         {
             if (openFD.ShowDialog() == DialogResult.OK)
             {
-                fileTextBox.Text = openFD.FileName;
+                openTextBox.Text = openFD.FileName;
             }
         }
 
+        // event - On button click - To start Archivation
         private void btnToArc_Click(object sender, EventArgs e)
         {
             Archivate((int)numElementLen.Value);
         }
 
+        // event - on button click - to start archivation seria
         private void btnSerial_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < numIterations.Value; i++)
@@ -90,7 +143,6 @@ namespace archiver
 
         private bool Archivate(int blockLength)
         {
-            // 
             // bool positional = true;
             //  bool elementType = true;
             Session session = new Session();
@@ -99,7 +151,7 @@ namespace archiver
 
             var encodedBuilder = new StringBuilder();
             var decodedText = string.Empty;
-            var sourceText = FileManipulator.ReadFile(fileTextBox.Text);
+            var sourceText = FileManipulator.ReadFile(openFD.FileName);
             if (string.IsNullOrEmpty(sourceText))
             {
                 return false;
@@ -132,7 +184,7 @@ namespace archiver
             session.SourceLength = sourceLength;
             session.EncodedLength = encodedLength;
             
-            // if (elementType)
+            // if (elementType is Blocks)
             if (radioBlocks.Checked)
             {
                 for (int k = 0; k < encodedText.Count; k++)
@@ -142,7 +194,7 @@ namespace archiver
                 }
                 FileManipulator.WriteFile(decodedText, "decodedBlock");
             }
-            else //L-grums
+            else //elementType is L-grams
             {
                 decodedText += dictionary[encodedDictionary.IndexOf(encodedText[0])];
                 for (int i = 1; i < encodedText.Count; i++)
@@ -160,46 +212,15 @@ namespace archiver
             return true;
         }
 
-        private void treeFileView_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            try
-            {
-                TreeNode current = e.Node;
-                string path = current.FullPath;
-                string[] Files = Directory.GetFiles(path);
-                //string[] Directories = Directory.GetDirectories(path);
-                string[] subinfo = new string[4];
-                listView.Clear();
-                listView.Columns.Add("Name", 255);
-                listView.Columns.Add("Type", 80);
-                listView.Columns.Add("Size", 100);
-                listView.Columns.Add("Full path");
-                listView.Columns[3].Width = 60;
-                foreach (string Fname in Files)
-                {
-                    subinfo[0] = Path.GetFileName(Fname);
-                    subinfo[1] = Path.GetExtension(Fname).Substring(1);
-                    subinfo[2] = treeParams.GetSizeinfo(Fname);
-                    subinfo[3] = Fname;
-                    ListViewItem FItems = new ListViewItem(subinfo);
-                    listView.Items.Add(FItems);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error: ");
-            }
-        }
-
 
         private void listView_MouseClick(object sender, MouseEventArgs e)
         {
             // if selected items more than 0 move it to textbox
-            if (listView.SelectedItems.Count > 0)
-            {
-                fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text;
-                //    fileTextBox.Text = listView.SelectedItems[0].SubItems[3].Text.Remove(2,1); // 0 - the only element in selected file collection, 3 - number of column with full path
-            }
+            if (listView.SelectedItems.Count <= 0) return;
+            openFD.FileName = openTextBox.Text = listView.SelectedItems[0].SubItems[3].Text;
+            if (!saveAnyPathMenuItem.Checked) return;
+            Settings.Default.openPath = openFD.FileName; 
+            Settings.Default.Save();
         }
 
         private void savePathStripMenuItem_Click(object sender, EventArgs e)
@@ -210,6 +231,33 @@ namespace archiver
         private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(saveFD.FileName);
+        }
+
+        private void saveAnyPathToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.Default.saveAnyPath = saveAnyPathMenuItem.Checked = !saveAnyPathMenuItem.Checked;
+            Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : "";
+            Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : "";
+            Settings.Default.Save();
+        }
+
+        private void updateDriveTreeView(object sender, EventArgs e)
+        {
+            treeFileView.Nodes.Clear();
+            foreach (DriveInfo drv in DriveInfo.GetDrives())
+            {
+                if (drv.IsReady)
+                {
+                    TreeNode tn = new TreeNode { Text = drv.Name };
+                    tn.Nodes.Add("");
+                    treeFileView.Nodes.Add(tn);
+                }
+            }
+            if (treeFileView.TopNode.NextNode == null)
+            {
+                treeFileView.TopNode.Expand();
+            }
+            
         }
     }
 }

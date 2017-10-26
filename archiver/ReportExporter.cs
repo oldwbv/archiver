@@ -1,0 +1,7 @@
+﻿namespace archiver
+{
+    class ReportExporter
+    {
+
+    }
+}

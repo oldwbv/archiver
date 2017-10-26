@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace archiver
+namespace archiver.Proccesing
 {
-    public static  class SimpleCode
+    public static class SimpleCode
     {
-        public static List<string> BuildCode(List<string> dictionary, Proccesing.Session session)
+        public static List<string> BuildCode(List<string> dictionary, Session session)
         {
             List<string> encodedDictionary = new List<string>();
             int codeLength = (int) Math.Ceiling(Math.Log(dictionary.Count, 2));

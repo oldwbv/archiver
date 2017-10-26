@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace archiver.Tree
+namespace archiver.TreeView
 {
     static class treeParams
     {

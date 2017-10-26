@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace archiver
+namespace archiver.Proccesing
 {
     public  static class StringManipulator
     {

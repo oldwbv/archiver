@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Forms;
 
-namespace archiver
+namespace archiver.Proccesing
 {
     public static class FileManipulator
     {
@@ -36,7 +35,7 @@ namespace archiver
         {
             if (!File.Exists(file))
             {
-                MessageBox.Show("Error:\nФайл не существует");
+                MessageBox.Show("Проверьте, существует ли указанный файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return string.Empty;
             }
             var reader = new StreamReader(file);
