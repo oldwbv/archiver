@@ -165,7 +165,7 @@
             this.updateTreeViewToolStripMenuItem.Name = "updateTreeViewToolStripMenuItem";
             this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.updateTreeViewToolStripMenuItem.Text = "Обновить дерево";
-            this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.updateDriveTreeView);
+            this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.UpdateDriveTreeView);
             // 
             // saveAnyPathMenuItem
             // 
@@ -295,6 +295,7 @@
             this.openFD.Filter = "Все файлы|*.*|ivt архивы|*.ivt";
             this.openFD.RestoreDirectory = true;
             this.openFD.SupportMultiDottedExtensions = true;
+
             // 
             // treeFileView
             // 

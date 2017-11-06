@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -22,7 +21,7 @@ namespace archiver
         // On Form Load
         private void Form1_Load(object sender, EventArgs e)
         {
-            updateDriveTreeView(this, null);
+            UpdateDriveTreeView(this, null);
             saveAnyPathMenuItem.Checked = Settings.Default.saveAnyPath;
             openFD.InitialDirectory = openTextBox.Text = Path.GetDirectoryName(Settings.Default.openPath);
            /*string[] path = openTextBox.Text.Split('\\');
@@ -173,7 +172,7 @@ namespace archiver
                 encodedBuilder.Append(stringCode);
             }
 
-            FileManipulator.WriteFile(encodedBuilder.ToString(), "encoded");
+            FileManipulator.WriteFile(encodedBuilder.ToString(), Path.GetDirectoryName(openFD.FileName) + @"\encoded.ivt");
 
             int encodedLength = encodedBuilder.ToString().Length;
 
@@ -192,7 +191,7 @@ namespace archiver
                     int index = encodedDictionary.IndexOf(encodedText[k]);
                     decodedText += dictionary[index];
                 }
-                FileManipulator.WriteFile(decodedText, "decodedBlock");
+                FileManipulator.WriteFile(decodedText, Path.GetDirectoryName(openFD.FileName) + @"\decodedBlock" + openFD.SafeFileName);
             }
             else //elementType is L-grams
             {
@@ -205,7 +204,7 @@ namespace archiver
                     decodedText += t;
                 }
 
-                FileManipulator.WriteFile(decodedText, "decodedLGrum");
+                FileManipulator.WriteFile(decodedText, Path.GetDirectoryName(openFD.FileName) + @"\decodedLGrum" + openFD.SafeFileName);
             }
             MessageBox.Show(session.SourceLength.ToString() + "\n"
                             + session.EncodedLength + "\n" + session.GetCompression() + "\n" + session.AverageWordLength);
@@ -241,7 +240,7 @@ namespace archiver
             Settings.Default.Save();
         }
 
-        private void updateDriveTreeView(object sender, EventArgs e)
+        private void UpdateDriveTreeView(object sender, EventArgs e)
         {
             treeFileView.Nodes.Clear();
             foreach (DriveInfo drv in DriveInfo.GetDrives())
@@ -259,5 +258,6 @@ namespace archiver
             }
             
         }
-    }
+        
+     }
 }

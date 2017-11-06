@@ -6,9 +6,9 @@ namespace archiver.Proccesing
     public static class FileManipulator
     {
         public static string path  = "";
-        public static void WriteFile(string decodedText, string typeFile)
+        public static void WriteFile(string text, string path)
         {
-            var locPath = path;
+           /* var locPath = path;
             if (string.IsNullOrEmpty(locPath))
             {
                 locPath = "./";
@@ -25,9 +25,9 @@ namespace archiver.Proccesing
                 {
                     locPath = locPath.Insert(ind, typeFile);
                 }
-            }
-            var sw1 = new StreamWriter(locPath);
-            sw1.Write("{0}", decodedText);
+            }*/
+            var sw1 = new StreamWriter(path);
+            sw1.Write("{0}", text);
             sw1.Close();
         }
 
