@@ -71,6 +71,8 @@
             this.saveFD = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.MessageStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.SeriaStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.button1 = new System.Windows.Forms.Button();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -199,6 +201,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.saveTextBox);
             this.panel1.Controls.Add(this.openTextBox);
@@ -295,7 +298,6 @@
             this.openFD.Filter = "Все файлы|*.*|ivt архивы|*.ivt";
             this.openFD.RestoreDirectory = true;
             this.openFD.SupportMultiDottedExtensions = true;
-
             // 
             // treeFileView
             // 
@@ -478,7 +480,8 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MessageStripStatusLabel});
+            this.MessageStripStatusLabel,
+            this.SeriaStripProgressBar});
             this.statusStrip.Location = new System.Drawing.Point(0, 360);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(766, 22);
@@ -490,6 +493,21 @@
             this.MessageStripStatusLabel.Name = "MessageStripStatusLabel";
             this.MessageStripStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.MessageStripStatusLabel.Text = "Status";
+            // 
+            // SeriaStripProgressBar
+            // 
+            this.SeriaStripProgressBar.Name = "SeriaStripProgressBar";
+            this.SeriaStripProgressBar.Size = new System.Drawing.Size(100, 16);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(453, 4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // ArchiverMainForm
             // 
@@ -579,6 +597,8 @@
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel MessageStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem updateTreeViewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripProgressBar SeriaStripProgressBar;
+        private System.Windows.Forms.Button button1;
     }
 }
 

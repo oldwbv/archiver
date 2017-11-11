@@ -130,6 +130,7 @@ namespace archiver
         // event - on button click - to start archivation seria
         private void btnSerial_Click(object sender, EventArgs e)
         {
+            ReportExporter rp = new ReportExporter((int)numIterations.Value);
             for (int i = 0; i < numIterations.Value; i++)
             {
                 var length = numElementLen.Value + numStep.Value * i;
@@ -137,6 +138,7 @@ namespace archiver
                 {
                     return;
                 }
+                
             }
         }
 
@@ -222,11 +224,6 @@ namespace archiver
             Settings.Default.Save();
         }
 
-        private void savePathStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FileManipulator.path = saveFD.ShowDialog() == DialogResult.OK ? saveFD.FileName : string.Empty;
-        }
-
         private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(saveFD.FileName);
@@ -258,6 +255,10 @@ namespace archiver
             }
             
         }
-        
-     }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ReportExporter ex = new ReportExporter();
+        }
+    }
 }

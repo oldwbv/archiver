@@ -5,30 +5,31 @@ namespace archiver.Proccesing
 {
     public static class FileManipulator
     {
-        public static string path  = "";
-        public static void WriteFile(string text, string path)
+        //записать
+        public static void WriteFile(string text, string file)
         {
-           /* var locPath = path;
-            if (string.IsNullOrEmpty(locPath))
+            if (!File.Exists(file))
             {
-                locPath = "./";
-                locPath += typeFile;
-            }
-            else
-            {
-                var ind = locPath.LastIndexOf(".");
-                if (ind < 0)
+                DialogResult dr = MessageBox.Show(
+                    "Перезаписать существующий файл",
+                    "Файл существует",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Error);
+                if (dr == DialogResult.Yes)
                 {
-                    locPath += typeFile;
-                }
+                    File.Delete(file);
+                }   
                 else
                 {
-                    locPath = locPath.Insert(ind, typeFile);
+                    return;
                 }
-            }*/
-            var sw1 = new StreamWriter(path);
-            sw1.Write("{0}", text);
-            sw1.Close();
+            }
+
+            using (var sw = new StreamWriter(file))
+            {
+                sw.Write("{0}", text);
+                sw.Close();
+            }
         }
 
         public static string ReadFile(string file)
