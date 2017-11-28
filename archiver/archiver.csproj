@@ -25,6 +25,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <DocumentationFile>
     </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -61,18 +62,18 @@
     <Compile Include="ArchiverMainForm.Designer.cs">
       <DependentUpon>ArchiverMainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Session.cs" />
-    <Compile Include="Proccesing\FileManipulator.cs" />
+    <Compile Include="MultiArchiving\Session.cs" />
+    <Compile Include="TextProccesing\FileManipulator.cs" />
     <Compile Include="Huffman\HaffmanCode.cs" />
     <Compile Include="Huffman\HuffmanTree.cs" />
-    <Compile Include="Huffman\Node.cs" />
-    <Compile Include="ReportExporter.cs" />
+    <Compile Include="Huffman\HuffmanNode.cs" />
+    <Compile Include="MultiArchiving\ReportExporter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Proccesing\SimpleCode.cs" />
-    <Compile Include="Proccesing\StringIterator.cs" />
-    <Compile Include="Proccesing\StringManipulator.cs" />
-    <Compile Include="TreeView\treeParams.cs" />
+    <Compile Include="TextProccesing\CodeSimplifier.cs" />
+    <Compile Include="TextProccesing\StringIterator.cs" />
+    <Compile Include="TextProccesing\StringManipulator.cs" />
+    <Compile Include="View\TreeViewParams.cs" />
     <EmbeddedResource Include="ArchiverMainForm.resx">
       <DependentUpon>ArchiverMainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,9 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\TextFile1.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

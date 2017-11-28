@@ -58,5 +58,17 @@ namespace archiver.Properties {
                 this["saveAnyPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool rewriteFiles {
+            get {
+                return ((bool)(this["rewriteFiles"]));
+            }
+            set {
+                this["rewriteFiles"] = value;
+            }
+        }
     }
 }

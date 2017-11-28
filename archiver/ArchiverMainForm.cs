@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using archiver.Huffman;
-using archiver.Proccesing;
+using archiver.MultiArchiving;
 using archiver.Properties;
-using archiver.TreeView;
+using archiver.TextProccesing;
 
 namespace archiver
 {
@@ -22,21 +23,11 @@ namespace archiver
         private void Form1_Load(object sender, EventArgs e)
         {
             UpdateDriveTreeView(this, null);
+            rewriteFilesToolStripMenuItem.Checked = Settings.Default.rewriteFiles;
             saveAnyPathMenuItem.Checked = Settings.Default.saveAnyPath;
             openFD.InitialDirectory = openTextBox.Text = Path.GetDirectoryName(Settings.Default.openPath);
-           /*string[] path = openTextBox.Text.Split('\\');
-            MessageBox.Show(path.Length.ToString());
-            for (var i = 1; i < path.Length; i++)
-            {
-                TreeNode[] nodes = treeFileView.Nodes.Find(path[i], false);
-                MessageBox.Show(nodes.Length.ToString());
-                nodes[0].Expand();
-            }*/
-            treeFileView.TopNode.Expand();
             saveFD.InitialDirectory = saveTextBox.Text = Path.GetDirectoryName(Settings.Default.savePath);
-           
-
-            // 
+            treeFileView.TopNode.Expand();
         }
 
         // event - before expanding the tree view
@@ -69,7 +60,6 @@ namespace archiver
                 TreeNode current = e.Node;
                 string path = current.FullPath;
                 IEnumerable<string> files = Directory.EnumerateFiles(path);
-                //string[] Directories = Directory.GetDirectories(path);
                 string[] subinfo = new string[4];
                 listView.Clear();
                 listView.Columns.Add("Name", 255);
@@ -84,7 +74,7 @@ namespace archiver
                     subinfo[1] = Path.GetExtension(file).StartsWith(".")
                         ? Path.GetExtension(file).Substring(1).ToUpper()
                         : "";
-                    subinfo[2] = treeParams.GetSizeinfo(file);
+                    subinfo[2] = TreeViewParams.GetSizeinfo(file);
                     subinfo[3] = file;
                     ListViewItem fItems = new ListViewItem(subinfo);
                     listView.Items.Add(fItems);
@@ -95,13 +85,6 @@ namespace archiver
                 // ignored
             }
         }
-
-        /*
-        private void Error()
-        {
-            MessageBox.Show("Что-то случилось нехорошее");
-        }*/
-
 
         // event - on the exit menu item click;
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -124,32 +107,52 @@ namespace archiver
         // event - On button click - To start Archivation
         private void btnToArc_Click(object sender, EventArgs e)
         {
-            Archivate((int)numElementLen.Value);
+            Session session = new Session(
+                (int) numElementLen.Value,
+                radioPositional.Checked,
+                radioBlocks.Checked);
+            if (Archivate(session).Result && (session.ElementLength >= 1))
+            {
+                MessageBox.Show(session.SourceLength + "\n"
+                                  + session.EncodedLength + "\n"
+                                  + session.GetCompression() + "\n"
+                                  + session.AverageElementLength);
+            }
         }
 
         // event - on button click - to start archivation seria
         private void btnSerial_Click(object sender, EventArgs e)
         {
-            ReportExporter rp = new ReportExporter((int)numIterations.Value);
+            if (!File.Exists(openFD.FileName))
+            {
+                MessageBox.Show("Проверьте, существует ли указанный файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            ReportExporter rp = new ReportExporter(
+                (int)numIterations.Value, 
+                Path.GetFileNameWithoutExtension(openFD.FileName)
+                );
             for (int i = 0; i < numIterations.Value; i++)
             {
-                var length = numElementLen.Value + numStep.Value * i;
-                if (Archivate((int) length) == false)
+                Session session = new Session(
+                    (int)(numElementLen.Value + numStep.Value * i),
+                    radioPositional.Checked,
+                    radioBlocks.Checked);
+                if (Archivate(session).Result == false || session.ElementLength <= 0)
                 {
                     return;
                 }
-                
+                rp.WriteExcel(session, i);
+                SeriaStripProgressBar.PerformStep();
             }
+            rp.Finish();
         }
 
-        private bool Archivate(int blockLength)
+        //Archivation process
+        private async Task<bool> Archivate(Session session)
         {
-            // bool positional = true;
-            //  bool elementType = true;
-            Session session = new Session();
             var dictionary = new List<string>();
             var encodedText = new List<string>();
-
             var encodedBuilder = new StringBuilder();
             var decodedText = string.Empty;
             var sourceText = FileManipulator.ReadFile(openFD.FileName);
@@ -157,15 +160,16 @@ namespace archiver
             {
                 return false;
             }
+            int step = radioBlocks.Checked ? session.ElementLength : 1;
+            MessageStripStatusLabel.Text = "Text spliting";
+            var splittedText = StringManipulator.SplitText(sourceText, step, session.ElementLength, dictionary);
 
-            //int blockLength = 1, step = 1;
+            MessageStripStatusLabel.Text = "Dictionary building";
+            List<string> encodedDictionary = radioPositional.Checked
+                ? CodeSimplifier.BuildCode(dictionary, session)
+                : HaffmanCode.BuildCode(splittedText, dictionary, session);
 
-           // var blockLength = (int)numElementLen.Value;
-            int step = radioBlocks.Checked ? blockLength : 1;
-            var splittedText = StringManipulator.SplitText(sourceText, step, blockLength, dictionary);
-
-            // var encodedDictionary = positional ? SimpleCode.BuildCode(dictionary) : HaffmanCode.BuildCode(splittedText, dictionary);
-            List<string> encodedDictionary = radioPositional.Checked ? SimpleCode.BuildCode(dictionary, session) : HaffmanCode.BuildCode(splittedText, dictionary, session);
+            MessageStripStatusLabel.Text = "Text encoding";
             for (int m = 0; m < splittedText.Count; m++)
             {
                 int index = dictionary.IndexOf(splittedText[m]);
@@ -174,17 +178,27 @@ namespace archiver
                 encodedBuilder.Append(stringCode);
             }
 
-            FileManipulator.WriteFile(encodedBuilder.ToString(), Path.GetDirectoryName(openFD.FileName) + @"\encoded.ivt");
+            MessageStripStatusLabel.Text = "Encoded file writing";
+            FileManipulator.WriteFile(encodedBuilder.ToString(),
+                Path.GetDirectoryName(openFD.FileName) + @"\encoded.ivt", rewriteFilesToolStripMenuItem.Checked);
 
-            int encodedLength = encodedBuilder.ToString().Length;
+            /**/
+            MessageStripStatusLabel.Text = "Dictionary writing";
+            var s = encodedDictionary.ToArray();
+            var v = dictionary.ToArray();
+            string end = "";
+            for (int i=0; i< encodedDictionary.Count; i++)
+            {
+                end +=  dictionary[i]+ "-"+ encodedDictionary[i]+"|";
+            }
+            FileManipulator.WriteFile(end,
+                Path.GetDirectoryName(openFD.FileName) + @"\dictionary.txt", rewriteFilesToolStripMenuItem.Checked);
 
-            int sourceLength = sourceText.Length;
 
-            float compression = (float)sourceLength / encodedLength;
-            //MessageBox.Show("Длина исходного текста=" + sourceLength.ToString() + "\nДлина закодированного текста=" + encodedLength.ToString() + "\nКоэфициент сжатия=" + compression.ToString());
-            session.SourceLength = sourceLength;
-            session.EncodedLength = encodedLength;
-            
+            /**/
+            session.SourceLength = sourceText.Length;
+            session.EncodedLength = encodedBuilder.ToString().Length;
+            MessageStripStatusLabel.Text = "Decoding";
             // if (elementType is Blocks)
             if (radioBlocks.Checked)
             {
@@ -192,8 +206,10 @@ namespace archiver
                 {
                     int index = encodedDictionary.IndexOf(encodedText[k]);
                     decodedText += dictionary[index];
+                    SeriaStripProgressBar.Value = (int) (100 * k / session.EncodedLength);
                 }
-                FileManipulator.WriteFile(decodedText, Path.GetDirectoryName(openFD.FileName) + @"\decodedBlock" + openFD.SafeFileName);
+                FileManipulator.WriteFile(decodedText,
+                    Path.GetDirectoryName(openFD.FileName) + @"\decodedBlock" + openFD.SafeFileName, rewriteFilesToolStripMenuItem.Checked);
             }
             else //elementType is L-grams
             {
@@ -202,14 +218,13 @@ namespace archiver
                 {
                     int index = encodedDictionary.IndexOf(encodedText[i]);
                     string t = dictionary[index];
-                    t = t.Substring(blockLength - 1, 1);
+                    t = t.Substring(session.ElementLength - 1, 1);
                     decodedText += t;
                 }
 
-                FileManipulator.WriteFile(decodedText, Path.GetDirectoryName(openFD.FileName) + @"\decodedLGrum" + openFD.SafeFileName);
+                FileManipulator.WriteFile(decodedText,
+                    Path.GetDirectoryName(openFD.FileName) + @"\decodedLGrum" + openFD.SafeFileName, rewriteFilesToolStripMenuItem.Checked);
             }
-            MessageBox.Show(session.SourceLength.ToString() + "\n"
-                            + session.EncodedLength + "\n" + session.GetCompression() + "\n" + session.AverageWordLength);
             return true;
         }
 
@@ -220,20 +235,15 @@ namespace archiver
             if (listView.SelectedItems.Count <= 0) return;
             openFD.FileName = openTextBox.Text = listView.SelectedItems[0].SubItems[3].Text;
             if (!saveAnyPathMenuItem.Checked) return;
-            Settings.Default.openPath = openFD.FileName; 
+            Settings.Default.openPath = openFD.FileName;
             Settings.Default.Save();
-        }
-
-        private void showToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(saveFD.FileName);
         }
 
         private void saveAnyPathToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Settings.Default.saveAnyPath = saveAnyPathMenuItem.Checked = !saveAnyPathMenuItem.Checked;
-            Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : "";
-            Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : "";
+            Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
+            Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
             Settings.Default.Save();
         }
 
@@ -256,9 +266,31 @@ namespace archiver
             
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ReportExporter ex = new ReportExporter();
+            if (saveFD.ShowDialog() == DialogResult.OK)
+            {
+                saveTextBox.Text = saveFD.FileName;
+            }
+        }
+
+        private void ArchiverMainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
+            Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
+            Settings.Default.Save();
+        }
+
+        private void btnDeArchivate_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rewriteFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            rewriteFilesToolStripMenuItem.Checked = !rewriteFilesToolStripMenuItem.Checked;
+            Settings.Default.rewriteFiles = rewriteFilesToolStripMenuItem.Checked;
+            Settings.Default.Save();
         }
     }
 }

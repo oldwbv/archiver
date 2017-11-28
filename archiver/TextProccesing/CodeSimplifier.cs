@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using archiver.MultiArchiving;
 
-namespace archiver.Proccesing
+namespace archiver.TextProccesing
 {
-    public static class SimpleCode
+    public static class CodeSimplifier
     {
         public static List<string> BuildCode(List<string> dictionary, Session session)
         {
@@ -20,8 +21,7 @@ namespace archiver.Proccesing
                     encodedDictionary.Add(stringCode);
                 }
             }
-            //MessageBox.Show("Средняя длина кодового слова: " + codeLength.ToString());
-            session.AverageWordLength = codeLength;
+            session.AverageElementLength = codeLength;
             return encodedDictionary;
         }
     }

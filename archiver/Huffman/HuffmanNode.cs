@@ -2,12 +2,12 @@
 
 namespace archiver.Huffman
 {
-    class Node
+    class HuffmanNode
     {
         public string Value { get; set; }
         public int Frequency { get; set; }
-        public Node Right { get; set; }
-        public Node Left { get; set; }
+        public HuffmanNode Right { get; set; }
+        public HuffmanNode Left { get; set; }
 
         public List<bool> Traverse(string value, List<bool> data)
         {

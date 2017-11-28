@@ -1,28 +1,35 @@
 ﻿using System.IO;
 using System.Windows.Forms;
 
-namespace archiver.Proccesing
+namespace archiver.TextProccesing
 {
     public static class FileManipulator
     {
         //записать
-        public static void WriteFile(string text, string file)
+        public static void WriteFile(string text, string file, bool rewrite)
         {
-            if (!File.Exists(file))
+            if (File.Exists(file))
             {
-                DialogResult dr = MessageBox.Show(
-                    "Перезаписать существующий файл",
-                    "Файл существует",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Error);
-                if (dr == DialogResult.Yes)
+                if (rewrite == true)
                 {
                     File.Delete(file);
-                }   
-                else
-                {
-                    return;
                 }
+                else
+                { 
+                    DialogResult dr = MessageBox.Show(
+                       "Перезаписать существующий файл",
+                       "Файл существует",
+                       MessageBoxButtons.YesNo,
+                       MessageBoxIcon.Error);
+                    if (dr == DialogResult.Yes)
+                    {
+                        File.Delete(file);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }  
             }
 
             using (var sw = new StreamWriter(file))
@@ -30,6 +37,7 @@ namespace archiver.Proccesing
                 sw.Write("{0}", text);
                 sw.Close();
             }
+
         }
 
         public static string ReadFile(string file)

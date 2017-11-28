@@ -31,6 +31,7 @@
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.archivationMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,6 +41,7 @@
             this.pathConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateTreeViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAnyPathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rewriteFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,7 +74,6 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.MessageStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.SeriaStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this.button1 = new System.Windows.Forms.Button();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -101,6 +102,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openMenuItem,
+            this.saveAsToolStripMenuItem,
             this.saveMenuItem,
             this.toolStripSeparator1,
             this.archivationMenuItem,
@@ -114,42 +116,50 @@
             // openMenuItem
             // 
             this.openMenuItem.Name = "openMenuItem";
-            this.openMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.openMenuItem.Size = new System.Drawing.Size(161, 22);
             this.openMenuItem.Text = "Открыть";
             this.openMenuItem.Click += new System.EventHandler(this.openFileMenuItem_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.saveAsToolStripMenuItem.Text = "Сохранить как...";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // saveMenuItem
             // 
             this.saveMenuItem.Name = "saveMenuItem";
-            this.saveMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.saveMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveMenuItem.Text = "Просмотр";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(145, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
             // 
             // archivationMenuItem
             // 
             this.archivationMenuItem.Name = "archivationMenuItem";
-            this.archivationMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.archivationMenuItem.Size = new System.Drawing.Size(161, 22);
             this.archivationMenuItem.Text = "Архивация";
+            this.archivationMenuItem.Click += new System.EventHandler(this.btnToArc_Click);
             // 
             // dearchivationMenuItem
             // 
             this.dearchivationMenuItem.Name = "dearchivationMenuItem";
-            this.dearchivationMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.dearchivationMenuItem.Size = new System.Drawing.Size(161, 22);
             this.dearchivationMenuItem.Text = "Разархивация";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(145, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(158, 6);
             // 
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.exitMenuItem.Size = new System.Drawing.Size(161, 22);
             this.exitMenuItem.Text = "Выйти";
             this.exitMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -157,7 +167,8 @@
             // 
             this.pathConfigToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.updateTreeViewToolStripMenuItem,
-            this.saveAnyPathMenuItem});
+            this.saveAnyPathMenuItem,
+            this.rewriteFilesToolStripMenuItem});
             this.pathConfigToolStripMenuItem.Name = "pathConfigToolStripMenuItem";
             this.pathConfigToolStripMenuItem.Size = new System.Drawing.Size(77, 20);
             this.pathConfigToolStripMenuItem.Text = "Настройки";
@@ -165,7 +176,7 @@
             // updateTreeViewToolStripMenuItem
             // 
             this.updateTreeViewToolStripMenuItem.Name = "updateTreeViewToolStripMenuItem";
-            this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
             this.updateTreeViewToolStripMenuItem.Text = "Обновить дерево";
             this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.UpdateDriveTreeView);
             // 
@@ -174,9 +185,16 @@
             this.saveAnyPathMenuItem.Checked = true;
             this.saveAnyPathMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.saveAnyPathMenuItem.Name = "saveAnyPathMenuItem";
-            this.saveAnyPathMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.saveAnyPathMenuItem.Size = new System.Drawing.Size(201, 22);
             this.saveAnyPathMenuItem.Text = "Сохранять пути";
             this.saveAnyPathMenuItem.Click += new System.EventHandler(this.saveAnyPathToolStripMenuItem_Click);
+            // 
+            // rewriteFilesToolStripMenuItem
+            // 
+            this.rewriteFilesToolStripMenuItem.Name = "rewriteFilesToolStripMenuItem";
+            this.rewriteFilesToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.rewriteFilesToolStripMenuItem.Text = "Перезаписывать файлы";
+            this.rewriteFilesToolStripMenuItem.Click += new System.EventHandler(this.rewriteFilesToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -201,7 +219,6 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.saveTextBox);
             this.panel1.Controls.Add(this.openTextBox);
@@ -263,6 +280,7 @@
             this.btnDeArchivate.TabIndex = 3;
             this.btnDeArchivate.Text = "Разархивировать";
             this.btnDeArchivate.UseVisualStyleBackColor = true;
+            this.btnDeArchivate.Click += new System.EventHandler(this.btnDeArchivate_Click);
             // 
             // btnSerial
             // 
@@ -415,7 +433,7 @@
             this.numElementLen.Size = new System.Drawing.Size(106, 20);
             this.numElementLen.TabIndex = 0;
             this.numElementLen.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             0});
@@ -499,16 +517,6 @@
             this.SeriaStripProgressBar.Name = "SeriaStripProgressBar";
             this.SeriaStripProgressBar.Size = new System.Drawing.Size(100, 16);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(453, 4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // ArchiverMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -531,6 +539,7 @@
             this.Name = "ArchiverMainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Archiver 1.0";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ArchiverMainForm_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
@@ -598,7 +607,8 @@
         private System.Windows.Forms.ToolStripStatusLabel MessageStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem updateTreeViewToolStripMenuItem;
         private System.Windows.Forms.ToolStripProgressBar SeriaStripProgressBar;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rewriteFilesToolStripMenuItem;
     }
 }
 

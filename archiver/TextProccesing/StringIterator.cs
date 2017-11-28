@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace archiver.Proccesing
+namespace archiver.TextProccesing
 {
     public class StringIterator
     {
-        private readonly String str;
-
+        readonly string str;
         int position = 0;
         readonly int readSize;
         readonly int step;
@@ -19,15 +18,10 @@ namespace archiver.Proccesing
 
         public string Next()
         {
-            string result;
-            if (str.Length > position + readSize)
-            {
-                result = str.Substring(position, readSize);
-            }
-            else
-            {
-                result = str.Substring(position, str.Length - position);
-            }
+            string result 
+                = str.Length > position + readSize
+                ? str.Substring(position, readSize)
+                : str.Substring(position, str.Length - position);
             position += step;
             
             return result;

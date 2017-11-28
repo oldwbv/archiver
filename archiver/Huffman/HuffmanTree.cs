@@ -1,54 +1,57 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using archiver.Proccesing;
+using archiver.MultiArchiving;
+using archiver.TextProccesing;
 
 namespace archiver.Huffman
 {
     class HuffmanTree
     {
-        public List<Node> nodes = new List<Node>();
-        public Node Root { get; set; }
+        public List<HuffmanNode> nodes = new List<HuffmanNode>();
+        public HuffmanNode Root { get; set; }
+
         public Dictionary<string, int> Frequencies = new Dictionary<string, int>();
+
         public Dictionary<string, double> d = new Dictionary<string, double>();
 
         public void Build(List<string> source)
         {
-            for (int i = 0; i < source.Count; i++)
+            foreach (string s in source)
             {
-                if (!Frequencies.ContainsKey(source[i]))
+                if (!Frequencies.ContainsKey(s))
                 {
-                    Frequencies.Add(source[i], 0);
+                    Frequencies.Add(s, 0);
                 }
 
-                Frequencies[source[i]]++;
+                Frequencies[s]++;
             }
 
-            for (int i = 0; i < source.Count; i++)
+            foreach (string s in source)
             {
-                double a = Frequencies[source[i]] / (double)(source.Count);
-                if (!d.ContainsKey(source[i]))
+                double a = Frequencies[s] / (double)(source.Count);
+                if (!d.ContainsKey(s))
                 {
-                    d.Add(source[i], a);
+                    d.Add(s, a);
                 }
             }
             
             foreach (KeyValuePair<string, int> value in Frequencies)
             {
-                nodes.Add(new Node() { Value = value.Key, Frequency = value.Value });
+                nodes.Add(new HuffmanNode() { Value = value.Key, Frequency = value.Value });
             }
 
             while (nodes.Count > 1)
             {
-                List<Node> orderedNodes = nodes.OrderBy(node => node.Frequency).ToList<Node>();
+                List<HuffmanNode> orderedNodes = nodes.OrderBy(node => node.Frequency).ToList<HuffmanNode>();
                 
                 if (orderedNodes.Count >= 2)
                 {
                     // Take first two items
-                    List<Node> taken = orderedNodes.Take(2).ToList<Node>();
+                    List<HuffmanNode> taken = orderedNodes.Take(2).ToList<HuffmanNode>();
 
-                    // Create a parent node by combining the frequencies
-                    Node parent = new Node()
+                    // Create a parent HuffmanNode by combining the frequencies
+                    HuffmanNode parent = new HuffmanNode()
                     {
                         Value = "*",
                         Frequency = taken[0].Frequency + taken[1].Frequency,
@@ -67,28 +70,27 @@ namespace archiver.Huffman
 
         }
 
-        double b = 0;
-        double c = 0;
+        
         public List<string> Encode(List<string> dictionary, Session session)
         {
+            double b = 0;
+            double c = 0;
             var result = new List<string>();
             for (int i = 0; i < dictionary.Count; i++)
             {
                 List<bool> encodedSymbol = Root.Traverse(dictionary[i], new List<bool>());
                 result.Add(StringManipulator.BitToString(new BitArray(encodedSymbol.ToArray())));
 
-
-                b += result[i].ToString().Length * d[dictionary[i]];
+                b += result[i].Length * d[dictionary[i]];
                 c += d[dictionary[i]];
             }
-            //MessageBox.Show("Средняя длина кодового слова: " + b.ToString());
-            session.AverageWordLength = b;
+            session.AverageElementLength = b;
             return result;
         }
 
         public string Decode(BitArray bits)
         {
-            Node current = this.Root;
+            HuffmanNode current = this.Root;
             string decoded = "";
 
             foreach (bool bit in bits)
@@ -118,9 +120,9 @@ namespace archiver.Huffman
             return decoded;
         }
 
-        public bool IsLeaf(Node node)
+        public bool IsLeaf(HuffmanNode huffmanNode)
         {
-            return (node.Left == null && node.Right == null);
+            return (huffmanNode.Left == null && huffmanNode.Right == null);
         }
     }
 }

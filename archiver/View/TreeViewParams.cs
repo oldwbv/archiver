@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace archiver.TreeView
+namespace archiver
 {
-    static class treeParams
+    static class TreeViewParams
     {
         public static string GetName(string path)
         {
