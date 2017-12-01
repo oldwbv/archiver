@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using System.ComponentModel;
 using System.Windows.Forms;
 using archiver.Huffman;
 using archiver.MultiArchiving;
@@ -107,11 +108,17 @@ namespace archiver
         // event - On button click - To start Archivation
         private void btnToArc_Click(object sender, EventArgs e)
         {
+            Thread one = new Thread(ArchivateOne);
+            one.Start();
+        }
+
+        private void ArchivateOne()
+        {
             Session session = new Session(
-                (int) numElementLen.Value,
+                (int)numElementLen.Value,
                 radioPositional.Checked,
                 radioBlocks.Checked);
-            if (Archivate(session).Result && (session.ElementLength >= 1))
+            if (Archivate(session) && (session.ElementLength >= 1))
             {
                 MessageBox.Show(session.SourceLength + "\n"
                                   + session.EncodedLength + "\n"
@@ -119,37 +126,56 @@ namespace archiver
                                   + session.AverageElementLength);
             }
         }
-
         // event - on button click - to start archivation seria
         private void btnSerial_Click(object sender, EventArgs e)
         {
+            Thread seria = new Thread(ArchivateSeria);
+            seria.Start();   
+        }
+
+        private void ArchivateSeria()
+        {
+
             if (!File.Exists(openFD.FileName))
             {
                 MessageBox.Show("Проверьте, существует ли указанный файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            ReportExporter rp = new ReportExporter(
-                (int)numIterations.Value, 
-                Path.GetFileNameWithoutExtension(openFD.FileName)
-                );
-            for (int i = 0; i < numIterations.Value; i++)
+            try
             {
-                Session session = new Session(
-                    (int)(numElementLen.Value + numStep.Value * i),
-                    radioPositional.Checked,
-                    radioBlocks.Checked);
-                if (Archivate(session).Result == false || session.ElementLength <= 0)
+                ReportExporter rp = new ReportExporter(
+                    (int) numIterations.Value,
+                    Path.GetFileNameWithoutExtension(openFD.FileName)
+                    );
+                for (int i = 0; i < numIterations.Value; i++)
                 {
-                    return;
+                    Session session = new Session(
+                        (int) (numElementLen.Value + numStep.Value*i),
+                        radioPositional.Checked,
+                        radioBlocks.Checked);
+                    var final = Archivate(session);
+                    if (final == false || !(session.ElementLength > 0))
+                    {
+                        SetStatusMessage("Interrupted " + final + " " + session.ElementLength);
+                        return;
+                    }
+                    rp.WriteExcel(session, i);
+                    SetStatusMessage("Количество архиваций выполнено");
+                    SetProgressValue((int) (100*(i + 1)/numIterations.Value));
+
                 }
-                rp.WriteExcel(session, i);
-                SeriaStripProgressBar.PerformStep();
+                rp.Finish();
             }
-            rp.Finish();
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+           
         }
 
         //Archivation process
-        private async Task<bool> Archivate(Session session)
+        private bool Archivate(Session session)
         {
             var dictionary = new List<string>();
             var encodedText = new List<string>();
@@ -158,18 +184,20 @@ namespace archiver
             var sourceText = FileManipulator.ReadFile(openFD.FileName);
             if (string.IsNullOrEmpty(sourceText))
             {
+                SetStatusMessage("Empty source");
                 return false;
             }
             int step = radioBlocks.Checked ? session.ElementLength : 1;
-            MessageStripStatusLabel.Text = "Text spliting";
+
+            SetStatusMessage("Text spliting");
             var splittedText = StringManipulator.SplitText(sourceText, step, session.ElementLength, dictionary);
 
-            MessageStripStatusLabel.Text = "Dictionary building";
+            SetStatusMessage("Dictionary building");
             List<string> encodedDictionary = radioPositional.Checked
                 ? CodeSimplifier.BuildCode(dictionary, session)
                 : HaffmanCode.BuildCode(splittedText, dictionary, session);
-
-            MessageStripStatusLabel.Text = "Text encoding";
+     
+            SetStatusMessage("Text encoding");
             for (int m = 0; m < splittedText.Count; m++)
             {
                 int index = dictionary.IndexOf(splittedText[m]);
@@ -177,28 +205,27 @@ namespace archiver
                 encodedText.Add(stringCode);
                 encodedBuilder.Append(stringCode);
             }
-
-            MessageStripStatusLabel.Text = "Encoded file writing";
+            
+            SetStatusMessage("Encoded file writing");
             FileManipulator.WriteFile(encodedBuilder.ToString(),
                 Path.GetDirectoryName(openFD.FileName) + @"\encoded.ivt", rewriteFilesToolStripMenuItem.Checked);
-
-            /**/
-            MessageStripStatusLabel.Text = "Dictionary writing";
+            
+            SetStatusMessage("Dictionary writing");
             var s = encodedDictionary.ToArray();
             var v = dictionary.ToArray();
             string end = "";
-            for (int i=0; i< encodedDictionary.Count; i++)
+            for (int i = 0; i < encodedDictionary.Count; i++)
             {
-                end +=  dictionary[i]+ "-"+ encodedDictionary[i]+"|";
+                end +=  dictionary[i] + "-" + encodedDictionary[i] + "|";
             }
             FileManipulator.WriteFile(end,
                 Path.GetDirectoryName(openFD.FileName) + @"\dictionary.txt", rewriteFilesToolStripMenuItem.Checked);
 
-
-            /**/
             session.SourceLength = sourceText.Length;
             session.EncodedLength = encodedBuilder.ToString().Length;
-            MessageStripStatusLabel.Text = "Decoding";
+            
+            SetStatusMessage("Decoding");
+
             // if (elementType is Blocks)
             if (radioBlocks.Checked)
             {
@@ -206,7 +233,8 @@ namespace archiver
                 {
                     int index = encodedDictionary.IndexOf(encodedText[k]);
                     decodedText += dictionary[index];
-                    SeriaStripProgressBar.Value = (int) (100 * k / session.EncodedLength);
+                    //SeriaStripProgressBar.Value = (int) (100 * k / session.EncodedLength);
+                    SetProgressValue((int)(100 * k / session.SourceLength));
                 }
                 FileManipulator.WriteFile(decodedText,
                     Path.GetDirectoryName(openFD.FileName) + @"\decodedBlock" + openFD.SafeFileName, rewriteFilesToolStripMenuItem.Checked);
@@ -225,7 +253,39 @@ namespace archiver
                 FileManipulator.WriteFile(decodedText,
                     Path.GetDirectoryName(openFD.FileName) + @"\decodedLGrum" + openFD.SafeFileName, rewriteFilesToolStripMenuItem.Checked);
             }
+            SetStatusMessage("Finished");
+            SetProgressValue(0);
             return true;
+        }
+
+        // DELEGATING WinControl methods for a thread call catching
+        delegate void StatusMessageCallback(string text);
+        delegate void StatusProgressCallback(int value);
+        private void SetStatusMessage(string text)
+        {
+            if (statusStrip.InvokeRequired)
+            {
+                StatusMessageCallback d = new StatusMessageCallback(SetStatusMessage);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                MessageStripStatusLabel.Text = text;
+            }
+        }
+
+        private void SetProgressValue(int value)
+        {
+
+            if (statusStrip.InvokeRequired)
+            {
+                StatusProgressCallback p = new StatusProgressCallback(SetProgressValue);
+                this.Invoke(p, new object[] { value });
+            }
+            else
+            {
+                SeriaStripProgressBar.Value = value;
+            }
         }
 
 
@@ -262,8 +322,7 @@ namespace archiver
             if (treeFileView.TopNode.NextNode == null)
             {
                 treeFileView.TopNode.Expand();
-            }
-            
+            }     
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)

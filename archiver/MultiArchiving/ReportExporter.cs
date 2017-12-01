@@ -8,7 +8,6 @@ namespace archiver.MultiArchiving
     // object - exporter of reports into excel application obj
     public class ReportExporter
     {
-
         Application _excel;
         readonly int _sessionCount;
 
@@ -24,13 +23,10 @@ namespace archiver.MultiArchiving
             StartExcel(filename);
         }
 
-
-        void StartExcel(string filename)
+        private void StartExcel(string filename)
         {
-            try
-            {
                 _excel = new Application();
-                _excel.Visible = true;
+                _excel.Visible = false;
                 _excel.SheetsInNewWorkbook = 1;
                 _excel.Workbooks.Add(Type.Missing);
                 Fill("A1", "Файл");
@@ -41,22 +37,19 @@ namespace archiver.MultiArchiving
                 Fill("D2", "Средняя длина элемента");
                 Fill("E2", "Размер файла");
                 Fill("F2", "Размер файла после сжатия");
-                Fill("G2", "Компрессия");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                Fill("G2", "Компрессия");             
         }
 
         // fill a cell 
         private void Fill(string cell, object value)
         {
-            Workbook workbook = _excel.Workbooks[1];
             Sheets sheets = _excel.Worksheets;
             Worksheet sheet = sheets[1];
             Range newcells = sheet.Range[cell, Type.Missing];
+            newcells.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            newcells.VerticalAlignment = XlVAlign.xlVAlignCenter;
             newcells.Value2 = value;
+
         }
 
         public void WriteExcel(Session session, int Iteration)
@@ -76,19 +69,18 @@ namespace archiver.MultiArchiving
 
         public void Finish()
         {
-
-            Workbook workbook = _excel.Workbooks[1];
             Sheets sheets = _excel.Worksheets;
             Worksheet sheet = sheets[1];
-
             ChartObjects chartObjects = sheet.ChartObjects();
             ChartObject chartObject = chartObjects.Add(10, 200, 500, 400);
-            Range cells = sheet.Range["C1", "D"+(_sessionCount+1)];
+            Range cells = _excel.Sheets[1].Range["A1", "G3"];
+            cells.Columns.AutoFit();
+            cells = sheet.Range["D3", "G"+(_sessionCount + 2)];
             cells.Select();
             Chart chart = chartObject.Chart;
             chart.ChartType = XlChartType.xlLine;
             chart.SetSourceData(cells);
-
+            _excel.Visible = true;
         }
     }
 }
