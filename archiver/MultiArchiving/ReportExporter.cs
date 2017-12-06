@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Policy;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Excel;
 using Application = Microsoft.Office.Interop.Excel.Application;
@@ -58,12 +59,12 @@ namespace archiver.MultiArchiving
             Sheets sheets = _excel.Worksheets;
             Worksheet sheet = sheets[1];
             Iteration += 3;
-            Fill("A" + Iteration, session.GetCodingType());
-            Fill("B" + Iteration, session.GetElementType());
-            Fill("C" + Iteration, session.ElementLength);
+            Fill("A" + Iteration, session.GetCodingType()); // тип кодирования
+            Fill("B" + Iteration, session.GetElementType()); // тип элемента
+            Fill("C" + Iteration, session.ElementLength); // длина 
             Fill("D" + Iteration, session.AverageElementLength);
             Fill("E" + Iteration, session.SourceLength);
-            Fill("F" + Iteration, session.EncodedLength);
+            Fill("F" + Iteration, session.DestinationLength);
             Fill("G" + Iteration, session.GetCompression());
         }
 
@@ -75,12 +76,21 @@ namespace archiver.MultiArchiving
             ChartObject chartObject = chartObjects.Add(10, 200, 500, 400);
             Range cells = _excel.Sheets[1].Range["A1", "G3"];
             cells.Columns.AutoFit();
-            cells = sheet.Range["D3", "G"+(_sessionCount + 2)];
+            //cells = sheet.Range["D3", "G"+(_sessionCount + 2)];
+            cells = _excel.Union(
+                 sheet.Range["C3", "C" + (_sessionCount + 2)],
+                 sheet.Range["D3", "D" + (_sessionCount + 2)]
+                 );
             cells.Select();
             Chart chart = chartObject.Chart;
             chart.ChartType = XlChartType.xlLine;
-            chart.SetSourceData(cells);
+            chart.SetSourceData(cells, PlotBy:XlRowCol.xlColumns);
             _excel.Visible = true;
+        }
+        
+        ~ReportExporter()
+        {
+            _excel = null;
         }
     }
 }

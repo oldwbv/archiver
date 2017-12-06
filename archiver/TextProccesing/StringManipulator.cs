@@ -32,6 +32,7 @@ namespace archiver.TextProccesing
             }
             return result.Substring(0, length);
         }
+
         public static string BitToString(BitArray code)
         {
             String result = String.Empty;

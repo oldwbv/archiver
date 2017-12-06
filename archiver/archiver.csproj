@@ -71,6 +71,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextProccesing\CodeSimplifier.cs" />
+    <Compile Include="TextProccesing\LengthComparer.cs" />
     <Compile Include="TextProccesing\StringIterator.cs" />
     <Compile Include="TextProccesing\StringManipulator.cs" />
     <Compile Include="View\TreeViewParams.cs" />

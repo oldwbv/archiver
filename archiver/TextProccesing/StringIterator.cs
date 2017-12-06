@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace archiver.TextProccesing
+﻿namespace archiver.TextProccesing
 {
     public class StringIterator
     {

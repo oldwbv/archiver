@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace archiver.TextProccesing
 {
+    // class to read/write a file
     public static class FileManipulator
     {
-        //записать
         public static void WriteFile(string text, string file, bool rewrite)
         {
             if (File.Exists(file))
@@ -15,21 +15,24 @@ namespace archiver.TextProccesing
                     File.Delete(file);
                 }
                 else
-                { 
+                {
                     DialogResult dr = MessageBox.Show(
                        "Перезаписать существующий файл",
                        "Файл существует",
-                       MessageBoxButtons.YesNo,
+                       MessageBoxButtons.YesNoCancel,
                        MessageBoxIcon.Error);
-                    if (dr == DialogResult.Yes)
+                    switch (dr)
                     {
-                        File.Delete(file);
+                        case DialogResult.Yes:
+                            File.Delete(file);
+                            break;
+                        case DialogResult.No:
+                            file = file.Replace(oldValue: Path.GetFileNameWithoutExtension(file), newValue: "(new)" + Path.GetFileNameWithoutExtension(file)  );
+                            break;
+                        case DialogResult.Cancel:
+                            return;
                     }
-                    else
-                    {
-                        return;
-                    }
-                }  
+                }
             }
 
             using (var sw = new StreamWriter(file))
@@ -44,7 +47,11 @@ namespace archiver.TextProccesing
         {
             if (!File.Exists(file))
             {
-                MessageBox.Show("Проверьте, существует ли указанный файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    text: "Проверьте, существует ли указанный файл", 
+                    caption: "Ошибка", 
+                    buttons: MessageBoxButtons.OK,
+                    icon: MessageBoxIcon.Error);
                 return string.Empty;
             }
             var reader = new StreamReader(file);
@@ -53,9 +60,33 @@ namespace archiver.TextProccesing
             var buffer = string.Empty;
             while ((buffer = reader.ReadLine()) != null)
             {
-                sourceText += buffer;
+                sourceText += buffer + "\n";
             }
             return sourceText;
+        }
+
+        public static string DoFileName(string filename, int id, string extension)
+        {
+            filename = id > 0 
+                ? filename.Replace(Path.GetFileNameWithoutExtension(filename),
+                                   Path.GetFileNameWithoutExtension(filename)+ id.ToString())
+                : filename;
+            return filename + ".arc17";
+        }
+        public static string DoFileName(string filename, int id)
+        {
+            var file = filename;
+            var extension = Path.GetExtension(file);
+            if (extension != null && extension.ToLower() == ".arc17")
+            {
+                file = Path.GetDirectoryName(file) + @"\" + Path.GetFileNameWithoutExtension(file);
+            }
+            file = id > 0
+                ? file.Replace(Path.GetFileNameWithoutExtension(file),
+                                   Path.GetFileNameWithoutExtension(file)
+                                   + id.ToString())
+                : file;
+            return file;
         }
     }
 }

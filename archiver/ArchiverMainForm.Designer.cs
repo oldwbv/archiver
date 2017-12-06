@@ -1,4 +1,7 @@
-﻿namespace archiver
+﻿using System.Collections.Generic;
+using System.Threading;
+
+namespace archiver
 {
     partial class ArchiverMainForm
     {
@@ -74,6 +77,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.MessageStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.SeriaStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.killThreadsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -167,6 +171,7 @@
             // 
             this.pathConfigToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.updateTreeViewToolStripMenuItem,
+            this.killThreadsToolStripMenuItem,
             this.saveAnyPathMenuItem,
             this.rewriteFilesToolStripMenuItem});
             this.pathConfigToolStripMenuItem.Name = "pathConfigToolStripMenuItem";
@@ -176,7 +181,7 @@
             // updateTreeViewToolStripMenuItem
             // 
             this.updateTreeViewToolStripMenuItem.Name = "updateTreeViewToolStripMenuItem";
-            this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.updateTreeViewToolStripMenuItem.Text = "Обновить дерево";
             this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.UpdateDriveTreeView);
             // 
@@ -185,14 +190,14 @@
             this.saveAnyPathMenuItem.Checked = true;
             this.saveAnyPathMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.saveAnyPathMenuItem.Name = "saveAnyPathMenuItem";
-            this.saveAnyPathMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.saveAnyPathMenuItem.Size = new System.Drawing.Size(212, 22);
             this.saveAnyPathMenuItem.Text = "Сохранять пути";
             this.saveAnyPathMenuItem.Click += new System.EventHandler(this.saveAnyPathToolStripMenuItem_Click);
             // 
             // rewriteFilesToolStripMenuItem
             // 
             this.rewriteFilesToolStripMenuItem.Name = "rewriteFilesToolStripMenuItem";
-            this.rewriteFilesToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.rewriteFilesToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.rewriteFilesToolStripMenuItem.Text = "Перезаписывать файлы";
             this.rewriteFilesToolStripMenuItem.Click += new System.EventHandler(this.rewriteFilesToolStripMenuItem_Click);
             // 
@@ -517,6 +522,13 @@
             this.SeriaStripProgressBar.Name = "SeriaStripProgressBar";
             this.SeriaStripProgressBar.Size = new System.Drawing.Size(100, 16);
             // 
+            // killThreadsToolStripMenuItem
+            // 
+            this.killThreadsToolStripMenuItem.Name = "killThreadsToolStripMenuItem";
+            this.killThreadsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.killThreadsToolStripMenuItem.Text = "Прервать текущие задачи";
+            this.killThreadsToolStripMenuItem.Click += new System.EventHandler(this.killThreadsToolStripMenuItem_Click);
+            // 
             // ArchiverMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -540,7 +552,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Archiver 1.0";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ArchiverMainForm_FormClosed);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.ArchiverMainForm_Load);
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -609,6 +621,9 @@
         private System.Windows.Forms.ToolStripProgressBar SeriaStripProgressBar;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rewriteFilesToolStripMenuItem;
+
+        private List<Thread> threads = new List<Thread>();
+        private System.Windows.Forms.ToolStripMenuItem killThreadsToolStripMenuItem;
     }
 }
 

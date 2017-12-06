@@ -74,7 +74,7 @@ namespace archiver.Huffman
         public List<string> Encode(List<string> dictionary, Session session)
         {
             double b = 0;
-            double c = 0;
+           // double c = 0;
             var result = new List<string>();
             for (int i = 0; i < dictionary.Count; i++)
             {
@@ -82,7 +82,7 @@ namespace archiver.Huffman
                 result.Add(StringManipulator.BitToString(new BitArray(encodedSymbol.ToArray())));
 
                 b += result[i].Length * d[dictionary[i]];
-                c += d[dictionary[i]];
+                //c += d[dictionary[i]];
             }
             session.AverageElementLength = b;
             return result;
