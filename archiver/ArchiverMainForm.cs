@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -17,6 +15,10 @@ namespace archiver
 {
     public partial class ArchiverMainForm : Form
     {
+        private const char FieldDelimeterChar = (char) 0x1f;
+        private const char ValueDelimeterChar = (char) 0x1e;
+
+
         // Constructor
         public ArchiverMainForm()
         {
@@ -107,6 +109,7 @@ namespace archiver
             {
                 openTextBox.Text = openFD.FileName;
             }
+            SaveSettings();
         }
 
         // event - On button click -  to start thread for single archivation
@@ -152,7 +155,7 @@ namespace archiver
         }
 
         //Thread to start serial archivation
-        private void ArchivateSeria()
+        private void ArchivateSeria() // after begin of correct ----- doesnt WORK NOW !!!
         {
             if (!File.Exists(openFD.FileName))
             {
@@ -165,12 +168,18 @@ namespace archiver
                     (int) numIterations.Value,
                     Path.GetFileNameWithoutExtension(openFD.FileName)
                     );
-                for (int i = 0; i < numIterations.Value; i++)
+
+                bool blocks = true;
+                for (int i = 0; i < numIterations.Value/2; i++)
                 {
+                    if (numIterations.Value/4 == i)
+                    {
+                        blocks = false;
+                    }
                     Session session = new Session(
-                        (int) (numElementLen.Value + numStep.Value*i),
-                        radioPositional.Checked,
-                        radioBlocks.Checked);
+                        (int) (numElementLen.Value + numStep.Value * i),
+                        true,
+                        blocks);
                     var final = Archivate(session, i+1);
                     if (final == false || !(session.ElementLength > 0))
                     {
@@ -180,8 +189,29 @@ namespace archiver
                     rp.WriteExcel(session, i);
                     SetStatusMessage("Количество архиваций выполнено");
                     SetProgressValue((int) (100 * (i + 1) / numIterations.Value));
-
                 }
+                blocks = true;
+                for (int i = 0; i < numIterations.Value / 2; i++)
+                {
+                    if (numIterations.Value / 4 == i)
+                    {
+                        blocks = false;
+                    }
+                    Session session = new Session(
+                        (int)(numElementLen.Value + numStep.Value * i),
+                        false,
+                        blocks);
+                    var final = Archivate(session, 2*(i + 1));
+                    if (final == false || !(session.ElementLength > 0))
+                    {
+                        SetStatusMessage("Interrupted " + final + " " + session.ElementLength);
+                        return;
+                    }
+                    rp.WriteExcel(session, 2*i);
+                    SetStatusMessage("Количество архиваций выполнено");
+                    SetProgressValue((int)(100 * (i + 1) / numIterations.Value));
+                }
+
                 rp.Finish();
             }
             catch(Exception ex)
@@ -258,13 +288,13 @@ namespace archiver
 
             SetStatusMessage("Arc info building");
 
-            encodedBuilder.Append("TYPE=arc17|");
-            encodedBuilder.Append(session.IsPositional ? "1|" : "0|");
+            encodedBuilder.Append("TYPE=arc17" + FieldDelimeterChar);
+            encodedBuilder.Append(session.IsPositional ? "1" + FieldDelimeterChar : "0" + FieldDelimeterChar);
             encodedBuilder.Append(session.IsBlock ? '1' : '0');
 
             for (int i = 0; i < encodedDictionary.Count; i++)
             {
-                encodedBuilder.Append("|" + dictionary[i] + "=" + encodedDictionary[i]);
+                encodedBuilder.Append('|' + dictionary[i] + '=' + encodedDictionary[i]);
             }
             session.InfoLength = encodedBuilder.Length;
             SetStatusMessage("Text encoding");
@@ -335,13 +365,13 @@ namespace archiver
             var dictionary = new List<string>();
             var encodedText = new List<string>();
             var encodedBuilder = new StringBuilder();
-            var decodedText = string.Empty;
+
             //READ file
             var sourceText = FileManipulator.ReadFile(openFD.FileName);
-            if (sourceText.Contains("|"))
+            if (sourceText.Contains(FieldDelimeterChar) || sourceText.Contains(ValueDelimeterChar))
             {
                 if (MessageBox.Show(
-                    text: "Файл содержит спец.символ '|', который приведет к потере данных при дешифровке.\nПродолжить?",
+                    text: "Файл содержит спец.символы, которые приведут к потере данных при дешифровке.\nПродолжить?",
                     caption: "Внимание!",
                     buttons: MessageBoxButtons.YesNo,
                     icon: MessageBoxIcon.Error
@@ -367,13 +397,13 @@ namespace archiver
             
             SetStatusMessage("Arc info building");
 
-            encodedBuilder.Append("TYPE=arc17|");
-            encodedBuilder.Append(session.IsBlock ? "1|" : "0|");
-            encodedBuilder.Append(session.ElementLength + "|");
+            encodedBuilder.Append("TYPE=arc17" + FieldDelimeterChar);
+            encodedBuilder.Append(session.IsBlock ? "1" + FieldDelimeterChar : "0" + FieldDelimeterChar);
+            encodedBuilder.Append(session.ElementLength.ToString() + FieldDelimeterChar);
 
             for (int i = 0; i < encodedDictionary.Count; i++)
             {
-                encodedBuilder.Append(dictionary[i] + "=" + encodedDictionary[i] + "|");
+                encodedBuilder.Append(dictionary[i] + ValueDelimeterChar + encodedDictionary[i] + FieldDelimeterChar);
             }
             session.InfoLength = encodedBuilder.Length;
 
@@ -454,7 +484,7 @@ namespace archiver
             var sourceText = FileManipulator.ReadFile(openFD.FileName);
             
             SetStatusMessage("Arc info reading");
-            string[] str = sourceText.Split('|');
+            string[] str = sourceText.Split(FieldDelimeterChar);
             Dictionary<string, string> dict = new Dictionary<string, string>();
             
             if (str[0].Contains("arc17"))
@@ -463,7 +493,7 @@ namespace archiver
                 var elementLen = int.Parse(str[2]);
                 for (int i = 3; i < str.Length-1; i++)
                 {
-                    var pair = str[i].Split('=');
+                    var pair = str[i].Split(ValueDelimeterChar);
                     dict.Add(pair[0], pair[1]);
                 }
                 SetStatusMessage("Decoding");
@@ -479,8 +509,8 @@ namespace archiver
                         {
                             try
                             {
-
-                                if (p.Value == encodedText.Substring(k, p.Value.Length))
+                                var card = encodedText.Substring(k, p.Value.Length);
+                                if (p.Value == card)
                                 {
                                     decodedText.Append(p.Key);
                                     k += p.Value.Length-1;
@@ -495,29 +525,40 @@ namespace archiver
                         k++;
                         SetProgressValue((int)(100 * k / encodedText.Length));
                     }
-                    MessageBox.Show(decodedText.ToString());
-                   
                     FileManipulator.WriteFile(decodedText.ToString(),
                                                FileManipulator.DoFileName(openFD.FileName, 0),
                                                rewriteFilesToolStripMenuItem.Checked);
                    // MessageBox.Show(FileManipulator.DoFileName(openFD.FileName, 0));
                 }
-                else //elementType is L-grams REWRITE DOESNT WORK
+                else //elementType is L-grams
                 {
-                    /*
-                    decodedText.Append(dictionary[encodedDictionary.IndexOf(encodedText[0]));
-                    for (int i = 1; i < encodedText.Length; i++)
+                    int k = 0;
+                    while (k < encodedText.Length)
                     {
-                        int index = encodedDictionary.IndexOf(encodedText[i].ToString());
-                        string t = dictionary[index];
-                        t = t.Substring(elementLen - 1, 1);
-                        decodedText.Append(t);
-                    
-                    
+                        foreach (var p in dict)
+                        {
+                            try
+                            {
+                                var card = encodedText.Substring(k, p.Value.Length);
+                                if (p.Value == card)
+                                {
+                                    decodedText.Append(k == 0 ? p.Key : p.Key.Substring(elementLen - 1, 1));
+                                    k += p.Value.Length - 1;
+                                    break;
+                                }
+                            }
+                            catch
+                            {
+                                break;
+                            }
+                        }
+                        k++;
+                        SetProgressValue((int)(100 * k / encodedText.Length));
+                    }
                     FileManipulator.WriteFile(decodedText.ToString(),
-                                               FileManipulator.DoFileName(openFD.FileName, 0),
-                                               rewriteFilesToolStripMenuItem.Checked);*/
-                }  
+                                              FileManipulator.DoFileName(openFD.FileName, 0),
+                                              rewriteFilesToolStripMenuItem.Checked);
+                }
                 SetStatusMessage("Finished");
             }
             else
@@ -565,17 +606,23 @@ namespace archiver
             if (listView.SelectedItems.Count <= 0) return;
             openFD.FileName = openTextBox.Text = listView.SelectedItems[0].SubItems[3].Text;
             if (!saveAnyPathMenuItem.Checked) return;
-            Settings.Default.openPath = openFD.FileName;
-            Settings.Default.Save();
+            SaveSettings();
         }
 
 
         //inverse state menu (save previous path for files opened/saved before) and save it in file
         private void saveAnyPathToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Settings.Default.saveAnyPath = saveAnyPathMenuItem.Checked = !saveAnyPathMenuItem.Checked;
+            saveAnyPathMenuItem.Checked = !saveAnyPathMenuItem.Checked;
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
+            Settings.Default.saveAnyPath = saveAnyPathMenuItem.Checked;
             Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
             Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
+            Settings.Default.rewriteFiles = rewriteFilesToolStripMenuItem.Checked;
             Settings.Default.Save();
         }
 
@@ -610,10 +657,7 @@ namespace archiver
         //after form closed
         private void ArchiverMainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //save params
-            Settings.Default.openPath = (saveAnyPathMenuItem.Checked && openTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
-            Settings.Default.savePath = (saveAnyPathMenuItem.Checked && saveTextBox.Text.Length > 0) ? openTextBox.Text : Application.ExecutablePath;
-            Settings.Default.Save();
+            SaveSettings();
             KillThreads();
         }
 
@@ -632,8 +676,7 @@ namespace archiver
         private void rewriteFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             rewriteFilesToolStripMenuItem.Checked = !rewriteFilesToolStripMenuItem.Checked;
-            Settings.Default.rewriteFiles = rewriteFilesToolStripMenuItem.Checked;
-            Settings.Default.Save();
+            SaveSettings();
         }
 
         private void killThreadsToolStripMenuItem_Click(object sender, EventArgs e)

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace archiver.TextProccesing
@@ -27,7 +28,14 @@ namespace archiver.TextProccesing
                             File.Delete(file);
                             break;
                         case DialogResult.No:
-                            file = file.Replace(oldValue: Path.GetFileNameWithoutExtension(file), newValue: "(new)" + Path.GetFileNameWithoutExtension(file)  );
+                            var k = 1;
+                            var newname = file;
+                            while (File.Exists(newname))
+                            {
+                                newname = InsertAdditionIntoFileName(file, k.ToString());
+                                k++;
+                            }
+                            file = newname;
                             break;
                         case DialogResult.Cancel:
                             return;
@@ -65,13 +73,10 @@ namespace archiver.TextProccesing
             return sourceText;
         }
 
-        public static string DoFileName(string filename, int id, string extension)
+        public static string DoFileName(string file, int id, string extension)
         {
-            filename = id > 0 
-                ? filename.Replace(Path.GetFileNameWithoutExtension(filename),
-                                   Path.GetFileNameWithoutExtension(filename)+ id.ToString())
-                : filename;
-            return filename + ".arc17";
+            file = id > 0 ? InsertAdditionIntoFileName(file, id.ToString()) : file;
+            return file + ".arc17";
         }
         public static string DoFileName(string filename, int id)
         {
@@ -81,12 +86,23 @@ namespace archiver.TextProccesing
             {
                 file = Path.GetDirectoryName(file) + @"\" + Path.GetFileNameWithoutExtension(file);
             }
-            file = id > 0
-                ? file.Replace(Path.GetFileNameWithoutExtension(file),
-                                   Path.GetFileNameWithoutExtension(file)
-                                   + id.ToString())
-                : file;
+            file = id > 0 ? InsertAdditionIntoFileName(file, id.ToString()) : file;
             return file;
+        }
+
+        public static string InsertAdditionIntoFileName(string fileName, string addition)
+        {
+            var path = Path.GetDirectoryName(fileName);
+            var name = Path.GetFileNameWithoutExtension(fileName);
+            var extension = Path.GetExtension(fileName);
+            var subExt = Path.GetExtension(name);
+            while (!string.IsNullOrEmpty(subExt))
+            {
+                extension = Path.GetExtension(name) + extension;
+                name = Path.GetFileNameWithoutExtension(name);
+                subExt = Path.GetExtension(name);
+            }
+            return path + "\\" + name + addition + extension;
         }
     }
 }
