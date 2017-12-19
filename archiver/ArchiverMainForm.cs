@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -125,11 +126,12 @@ namespace archiver
         //Thread to start single archivation
         private void ArchivateOne()
         {
+            SetStatusMultiMessage("Single");
             Session session = new Session(
                 (int)numElementLen.Value,
                 radioPositional.Checked,
                 radioBlocks.Checked);
-            if (Archivate(session, 0) && (session.ElementLength >= 1))
+            if (Archivate(session, 0, radioBlocks.Checked, radioPositional.Checked) && (session.ElementLength >= 1))
             {
                 MessageBox.Show( "Изначально " + session.SourceLength + "\n" 
                                + "Кодировано " + session.DestinationLength + "\n"
@@ -147,6 +149,7 @@ namespace archiver
         // event - on button click - to start thread for seria
         private void btnSerial_Click(object sender, EventArgs e)
         {
+            SetStatusMultiMessage("Multi");
             if (!CheckThreadExists())
             return;
             Thread seria = new Thread(ArchivateSeria);
@@ -157,6 +160,11 @@ namespace archiver
         //Thread to start serial archivation
         private void ArchivateSeria() // after begin of correct ----- doesnt WORK NOW !!!
         {
+            if (numIterations.Value%4 != 0)
+            {
+                SetStatusMessage("Число итераций должно быть кратно четырём");
+                return;
+            } 
             if (!File.Exists(openFD.FileName))
             {
                 MessageBox.Show("Проверьте, существует ли указанный файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -169,54 +177,48 @@ namespace archiver
                     Path.GetFileNameWithoutExtension(openFD.FileName)
                     );
 
-                bool blocks = true;
-                for (int i = 0; i < numIterations.Value/2; i++)
+                bool isBlocks = true;
+                bool isPositive = true;
+                int k = 0;
+                for (int i = 0; i < numIterations.Value; i++)
                 {
-                    if (numIterations.Value/4 == i)
+                    if (i < numIterations.Value/4)
                     {
-                        blocks = false;
+                        k = i;
                     }
+                    else if (i < numIterations.Value / 2)
+                    {
+                        k = i - (int)numIterations.Value/4;
+                    }
+                    else if (i < numIterations.Value*3/4)
+                    {
+                        k = i - (int) numIterations.Value/2;
+                    }
+                    else
+                    {
+                        k = i - (int) numIterations.Value*3/4;
+                    }
+
+                        isPositive = i < numIterations.Value/2;
+                    isBlocks = (i < numIterations.Value/2 && i < numIterations.Value/4 || i >= numIterations.Value / 2 && i < numIterations.Value*3/4);
                     Session session = new Session(
-                        (int) (numElementLen.Value + numStep.Value * i),
-                        true,
-                        blocks);
-                    var final = Archivate(session, i+1);
+                        (int)(numElementLen.Value + numStep.Value * k),
+                        isPositive,
+                        isBlocks);
+                    var final = Archivate(session, i + 1, isPositive, isBlocks);
                     if (final == false || !(session.ElementLength > 0))
                     {
                         SetStatusMessage("Interrupted " + final + " " + session.ElementLength);
                         return;
                     }
                     rp.WriteExcel(session, i);
-                    SetStatusMessage("Количество архиваций выполнено");
-                    SetProgressValue((int) (100 * (i + 1) / numIterations.Value));
+                    SetMultiProgressValue((int)(100 * (i + 1) / numIterations.Value));
                 }
-                blocks = true;
-                for (int i = 0; i < numIterations.Value / 2; i++)
-                {
-                    if (numIterations.Value / 4 == i)
-                    {
-                        blocks = false;
-                    }
-                    Session session = new Session(
-                        (int)(numElementLen.Value + numStep.Value * i),
-                        false,
-                        blocks);
-                    var final = Archivate(session, 2*(i + 1));
-                    if (final == false || !(session.ElementLength > 0))
-                    {
-                        SetStatusMessage("Interrupted " + final + " " + session.ElementLength);
-                        return;
-                    }
-                    rp.WriteExcel(session, 2*i);
-                    SetStatusMessage("Количество архиваций выполнено");
-                    SetProgressValue((int)(100 * (i + 1) / numIterations.Value));
-                }
-
                 rp.Finish();
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatusMessage(ex.Message);
                 return;
             }
            
@@ -357,13 +359,13 @@ namespace archiver
         }
 
         // main function to archivate
-        private bool Archivate(Session session, int id)
+        private bool Archivate(Session session, int id, bool isPositional, bool isBlock)
         {
             var watch = new Stopwatch();
             watch.Start();
 
             var dictionary = new List<string>();
-            var encodedText = new List<string>();
+          //  var encodedText = new List<string>();
             var encodedBuilder = new StringBuilder();
 
             //READ file
@@ -385,13 +387,13 @@ namespace archiver
                 SetStatusMessage("Empty source");
                 return false;
             }
-            int step = radioBlocks.Checked ? session.ElementLength : 1;
+            int step = isBlock ? session.ElementLength : 1;
 
             SetStatusMessage("Text spliting");
             var splittedText = StringManipulator.SplitText(sourceText, step, session.ElementLength, dictionary);
 
             SetStatusMessage("Dictionary building");
-            List<string> encodedDictionary = radioPositional.Checked
+            List<string> encodedDictionary = isPositional
                 ? CodeSimplifier.BuildCode(dictionary, session)
                 : HaffmanCode.BuildCode(splittedText, dictionary, session);
             
@@ -412,9 +414,9 @@ namespace archiver
             {
                 int index = dictionary.IndexOf(splittedText[m]);
                 string stringCode = encodedDictionary[index];
-                encodedText.Add(stringCode);
                 encodedBuilder.Append(stringCode);
             }
+            
 
             SetStatusMessage("Encoded file writing");
             
@@ -424,9 +426,9 @@ namespace archiver
                 rewriteFilesToolStripMenuItem.Checked);
             session.SourceLength = sourceText.Length;
             session.DestinationLength = encodedBuilder.ToString().Length;
-            
-            SetStatusMessage("Decoding");
             /*
+            SetStatusMessage("Decoding");
+            
             // if (elementType is Blocks)
             if (radioBlocks.Checked)
             {
@@ -572,7 +574,9 @@ namespace archiver
 
         // DELEGATING WinControl methods for a thread call catching
         delegate void StatusMessageCallback(string text);
+        delegate void StatusMessageMultiCallback(string text);
         delegate void StatusProgressCallback(int value);
+        delegate void SetMultiProgressCallback(int value);
         private void SetStatusMessage(string text)
         {
             if (statusStrip.InvokeRequired)
@@ -585,12 +589,37 @@ namespace archiver
                 MessageStripStatusLabel.Text = text;
             }
         }
+        private void SetStatusMultiMessage(string text)
+        {
+            if (statusStrip.InvokeRequired)
+            {
+                StatusMessageMultiCallback d = new StatusMessageMultiCallback(SetStatusMultiMessage);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                MessageMultiStripStatusLabel.Text = text;
+            }
+        }
         private void SetProgressValue(int value)
         {
 
             if (statusStrip.InvokeRequired)
             {
                 StatusProgressCallback p = new StatusProgressCallback(SetProgressValue);
+                this.Invoke(p, new object[] { value });
+            }
+            else
+            {
+                IndicationStripProgressBar.Value = value;
+            }
+        }
+        private void SetMultiProgressValue(int value)
+        {
+
+            if (statusStrip.InvokeRequired)
+            {
+                SetMultiProgressCallback p = new SetMultiProgressCallback(SetMultiProgressValue);
                 this.Invoke(p, new object[] { value });
             }
             else
@@ -682,7 +711,6 @@ namespace archiver
         private void killThreadsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KillThreads();
-        }
-    }
-   
+        } 
+    }  
 }

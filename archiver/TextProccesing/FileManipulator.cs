@@ -43,9 +43,9 @@ namespace archiver.TextProccesing
                 }
             }
 
-            using (var sw = new StreamWriter(file))
+            using (StreamWriter sw = new StreamWriter(file))
             {
-                sw.Write("{0}", text);
+                sw.Write(text);
                 sw.Close();
             }
 

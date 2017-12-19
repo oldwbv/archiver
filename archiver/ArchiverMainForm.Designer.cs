@@ -43,6 +43,7 @@ namespace archiver
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pathConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateTreeViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.killThreadsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAnyPathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rewriteFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,8 +77,9 @@ namespace archiver
             this.saveFD = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.MessageStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.IndicationStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.MessageMultiStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.SeriaStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this.killThreadsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -184,6 +186,13 @@ namespace archiver
             this.updateTreeViewToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.updateTreeViewToolStripMenuItem.Text = "Обновить дерево";
             this.updateTreeViewToolStripMenuItem.Click += new System.EventHandler(this.UpdateDriveTreeView);
+            // 
+            // killThreadsToolStripMenuItem
+            // 
+            this.killThreadsToolStripMenuItem.Name = "killThreadsToolStripMenuItem";
+            this.killThreadsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.killThreadsToolStripMenuItem.Text = "Прервать текущие задачи";
+            this.killThreadsToolStripMenuItem.Click += new System.EventHandler(this.killThreadsToolStripMenuItem_Click);
             // 
             // saveAnyPathMenuItem
             // 
@@ -455,16 +464,21 @@ namespace archiver
             this.numStep.Size = new System.Drawing.Size(75, 20);
             this.numStep.TabIndex = 9;
             this.numStep.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             0});
             // 
             // numIterations
             // 
+            this.numIterations.Increment = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
             this.numIterations.Location = new System.Drawing.Point(578, 37);
             this.numIterations.Minimum = new decimal(new int[] {
-            1,
+            4,
             0,
             0,
             0});
@@ -472,7 +486,7 @@ namespace archiver
             this.numIterations.Size = new System.Drawing.Size(87, 20);
             this.numIterations.TabIndex = 10;
             this.numIterations.Value = new decimal(new int[] {
-            10,
+            4,
             0,
             0,
             0});
@@ -504,6 +518,8 @@ namespace archiver
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MessageStripStatusLabel,
+            this.IndicationStripProgressBar,
+            this.MessageMultiStripStatusLabel,
             this.SeriaStripProgressBar});
             this.statusStrip.Location = new System.Drawing.Point(0, 360);
             this.statusStrip.Name = "statusStrip";
@@ -517,17 +533,21 @@ namespace archiver
             this.MessageStripStatusLabel.Size = new System.Drawing.Size(39, 17);
             this.MessageStripStatusLabel.Text = "Status";
             // 
+            // IndicationStripProgressBar
+            // 
+            this.IndicationStripProgressBar.Name = "IndicationStripProgressBar";
+            this.IndicationStripProgressBar.Size = new System.Drawing.Size(100, 16);
+            // 
+            // MessageMultiStripStatusLabel
+            // 
+            this.MessageMultiStripStatusLabel.Name = "MessageMultiStripStatusLabel";
+            this.MessageMultiStripStatusLabel.Size = new System.Drawing.Size(39, 17);
+            this.MessageMultiStripStatusLabel.Text = "Single";
+            // 
             // SeriaStripProgressBar
             // 
             this.SeriaStripProgressBar.Name = "SeriaStripProgressBar";
             this.SeriaStripProgressBar.Size = new System.Drawing.Size(100, 16);
-            // 
-            // killThreadsToolStripMenuItem
-            // 
-            this.killThreadsToolStripMenuItem.Name = "killThreadsToolStripMenuItem";
-            this.killThreadsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
-            this.killThreadsToolStripMenuItem.Text = "Прервать текущие задачи";
-            this.killThreadsToolStripMenuItem.Click += new System.EventHandler(this.killThreadsToolStripMenuItem_Click);
             // 
             // ArchiverMainForm
             // 
@@ -618,12 +638,14 @@ namespace archiver
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel MessageStripStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem updateTreeViewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripProgressBar SeriaStripProgressBar;
+        private System.Windows.Forms.ToolStripProgressBar IndicationStripProgressBar;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rewriteFilesToolStripMenuItem;
 
         private List<Thread> threads = new List<Thread>();
         private System.Windows.Forms.ToolStripMenuItem killThreadsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel MessageMultiStripStatusLabel;
+        private System.Windows.Forms.ToolStripProgressBar SeriaStripProgressBar;
     }
 }
 
